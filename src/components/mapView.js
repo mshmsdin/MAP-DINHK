@@ -70,6 +70,9 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
     rihlaLayer = L.layerGroup().addTo(map);
 
     renderMarkers();
+    updateMarkerLabels();
+
+    map.on('zoomend', updateMarkerLabels);
 
     // أزرار التحكم
     floatingControls.querySelector('#btn-zoom-in').addEventListener('click', () => map.zoomIn());
@@ -91,6 +94,11 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
         currentTileLayer = L.tileLayer(arabicOsmUrl, { maxZoom: 19 }).addTo(map);
       }
     });
+  }
+
+  function updateMarkerLabels() {
+    if (!map) return;
+    container.classList.toggle('show-marker-labels', map.getZoom() >= 7);
   }
 
   function renderMarkers(filteredCentury = null) {

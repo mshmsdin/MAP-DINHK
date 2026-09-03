@@ -101,16 +101,16 @@ html, body {
   left: 18px;
   right: 18px;
   z-index: 1000;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 8px 18px;
-  background: var(--bg-glass);
+  gap: 18px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--border-glass);
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: var(--shadow-md);
   transition: var(--transition-normal);
 }
@@ -119,6 +119,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   user-select: none;
   cursor: pointer;
 }
@@ -139,7 +140,8 @@ html, body {
 
 .brand-titles h1 {
   font-family: var(--font-title);
-  font-size: 1.15rem;
+  font-size: 0.98rem;
+  line-height: 1.25;
   font-weight: 700;
   letter-spacing: -0.5px;
   background: linear-gradient(90deg, #0f172a, #78350f);
@@ -147,12 +149,18 @@ html, body {
   -webkit-text-fill-color: transparent;
 }
 
+.brand-titles h1 span {
+  display: block;
+}
+
 .brand-titles p {
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   color: var(--text-muted);
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   align-items: center;
+  line-height: 1.35;
 }
 
 .badge-sources {
@@ -169,7 +177,8 @@ html, body {
 /* مربع البحث المركزي الذكي */
 .search-bar-wrapper {
   flex: 1;
-  max-width: 580px;
+  min-width: 0;
+  max-width: none;
   position: relative;
 }
 
@@ -553,6 +562,17 @@ html, body {
   font-weight: 700;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
   pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(-4px);
+  transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+}
+
+.custom-city-marker:hover .marker-label-box,
+.show-marker-labels .marker-label-box {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 .marker-label-box .scholar-count {
@@ -1537,6 +1557,8 @@ html, body {
 
 @media (max-width: 768px) {
   .main-header {
+    display: flex;
+    grid-template-columns: none;
     top: 6px;
     left: 6px;
     right: 6px;

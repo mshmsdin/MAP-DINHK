@@ -34,7 +34,7 @@ export function createHeader({
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>موسوعة البلدان والكنى القديمة</h1>
+        <h1><span>موسوعة البلدان</span><span>والكنى القديمة</span></h1>
         <p>
           <span>خريطة توزع علماء الحديث والأعلام</span>
           <span class="badge-sources">مراجعة أمهات المصادر</span>
