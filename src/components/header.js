@@ -66,100 +66,119 @@ export function createHeader({
       </div>
 
       <!-- وسوم الاقتراح السريع للأنساب والبيوتات العلمية -->
-      <div style="display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; padding-bottom: 2px;">
-        <span class="quick-suggest-pill" data-query="الجزائر">الجَزَائِر</span>
-        <span class="quick-suggest-pill" data-query="تلمسان">تِلِمْسَان</span>
-        <span class="quick-suggest-pill" data-query="ليبيا">لِيبْيَا</span>
-        <span class="quick-suggest-pill" data-query="المقري">المَقَّرِيّ</span>
-        <span class="quick-suggest-pill" data-query="عدن">عَدَن</span>
-        <span class="quick-suggest-pill" data-query="بامخرمة">بَامَخْرَمَة</span>
-        <span class="quick-suggest-pill" data-query="عمان">عُمَان</span>
-        <span class="quick-suggest-pill" data-query="البحرين">البَحْرَيْن</span>
-        <span class="quick-suggest-pill" data-query="الخليل بن أحمد">الخَلِيل بن أَحْمَد</span>
-        <span class="quick-suggest-pill" data-query="المصيصة">المَصِّيصَة</span>
-        <span class="quick-suggest-pill" data-query="طرسوس">طَرَسُوس</span>
-        <span class="quick-suggest-pill" data-query="القدس">بَيْت المَقْدِس</span>
-        <span class="quick-suggest-pill" data-query="الترمذي">الترمذي</span>
-        <span class="quick-suggest-pill" data-query="الأوزاعي">الأَوْزَاعِيّ</span>
-        <span class="quick-suggest-pill" data-query="آل تيمية">آل تَيْمِيَّة</span>
-        <span class="quick-suggest-pill" data-query="آل قدامة">آل قُدَامَة</span>
-        <span class="quick-suggest-pill" data-query="آل منده">آل مَنْدَه</span>
-        <span class="quick-suggest-pill" data-query="النووي">النَّوَوِيّ</span>
-        <span class="quick-suggest-pill" data-query="ابن القيم">ابْن القَيِّم</span>
-        <span class="quick-suggest-pill" data-query="الثوري">الثَّوْرِيّ</span>
-        <span class="quick-suggest-pill" data-query="المعدل">المُعَدَّل</span>
-        <span class="quick-suggest-pill" data-query="الكاتب">الكَاتِب</span>
-        <span class="quick-suggest-pill" data-query="الوراق">الوَارَّاق</span>
-        <span class="quick-suggest-pill" data-query="نيسابور">نيسابور</span>
-        <span class="quick-suggest-pill" data-query="أصفهان">أَصْبَهَان</span>
+      <div class="quick-suggest-wrapper">
+        <div class="quick-suggest-scroll" id="quick-suggest-container">
+          <span class="quick-suggest-pill" data-query="الجزائر">الجَزَائِر</span>
+          <span class="quick-suggest-pill" data-query="تلمسان">تِلِمْسَان</span>
+          <span class="quick-suggest-pill" data-query="ليبيا">لِيبْيَا</span>
+          <span class="quick-suggest-pill" data-query="المقري">المَقَّرِيّ</span>
+          <span class="quick-suggest-pill" data-query="عدن">عَدَن</span>
+          <span class="quick-suggest-pill" data-query="بامخرمة">بَامَخْرَمَة</span>
+          <span class="quick-suggest-pill" data-query="عمان">عُمَان</span>
+          <span class="quick-suggest-pill" data-query="البحرين">البَحْرَيْن</span>
+          <span class="quick-suggest-pill" data-query="الخليل بن أحمد">الخَلِيل بن أَحْمَد</span>
+          <span class="quick-suggest-pill" data-query="الترمذي">الترمذي</span>
+          <span class="quick-suggest-pill" data-query="الأوزاعي">الأَوْزَاعِيّ</span>
+          <span class="quick-suggest-pill" data-query="آل تيمية">آل تَيْمِيَّة</span>
+          <span class="quick-suggest-pill" data-query="آل قدامة">آل قُدَامَة</span>
+          <span class="quick-suggest-pill" data-query="آل منده">آل مَنْدَه</span>
+          <span class="quick-suggest-pill" data-query="النووي">النَّوَوِيّ</span>
+          <span class="quick-suggest-pill" data-query="ابن القيم">ابْن القَيِّم</span>
+          <span class="quick-suggest-pill" data-query="المعدل">المُعَدَّل</span>
+          <span class="quick-suggest-pill" data-query="الكاتب">الكَاتِب</span>
+          <span class="quick-suggest-pill" data-query="نيسابور">نيسابور</span>
+        </div>
       </div>
 
       <div id="search-dropdown" class="search-results-dropdown"></div>
     </div>
 
+    <!-- أزرار الهيدر الخفيفة غير المزدحمة -->
     <div class="header-actions">
-      <button id="btn-open-corpus-explorer" class="btn-header-action" title="استعراض وتصفح كامل مواد معجم البلدان والأنساب بنسبة 100% (16,800 مادة)" style="background: #e0f2fe; border-color: #0284c7; color: #0369a1; font-weight: bold;">
+      <!-- الزر الرئيسي: الموسوعة الشاملة (16,800 مادة) -->
+      <button id="btn-open-corpus-explorer" class="btn-corpus-hero" title="استعراض وتصفح كامل مواد معجم البلدان والأنساب بنسبة 100% (16,800 مادة)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
         </svg>
-        <span>الموسوعة الشاملة (16,800 مادة)</span>
+        <span class="hero-btn-title">الموسوعة الشاملة</span>
+        <span class="hero-btn-badge">16,800</span>
       </button>
 
-      <button id="btn-open-calc" class="btn-header-action" title="حساب المسافات التاريخية بالفراسخ والمراحل وأيام السير">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-        </svg>
-        <span>المسالك والفراسخ</span>
-      </button>
+      <!-- زر قائمة الأدوات التراثية المجمعة (لتخفيف الازدحام) -->
+      <div class="tools-menu-wrapper" id="tools-menu-wrapper">
+        <button id="btn-toggle-tools" class="btn-tools-trigger" title="قائمة الأدوات والتطبيقات التراثية">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>الأدوات التراثية</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
 
-      <button id="btn-open-regions" class="btn-header-action" title="أطلس وتصفية الأقاليم الإسلامية الكبرى">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-        </svg>
-        <span>الأقاليم</span>
-      </button>
+        <!-- القائمة المنسدلة للأدوات -->
+        <div class="tools-dropdown-menu" id="tools-dropdown-menu" style="display: none;">
+          <div class="tools-menu-header">الأدوات والتطبيقات التراثية</div>
 
-      <button id="btn-open-quiz" class="btn-header-action" title="مسابقة وتحدي الأنساب والبلدان التراثي">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-          <line x1="12" y1="17" x2="12.01" y2="17"></line>
-        </svg>
-        <span>تحدي الأنساب</span>
-      </button>
+          <button class="tool-menu-item" id="btn-open-calc">
+            <span class="tool-menu-icon" style="background: #fef3c7; color: #b45309;">📏</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">المسالك والفراسخ</span>
+              <span class="tool-menu-desc">حساب مسافات السير التاريخية ورسم المسارات</span>
+            </div>
+          </button>
 
-      <button id="btn-open-nongeo" class="btn-header-action" title="تصفح أنساب الصنائع والمهن والقبائل">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-        </svg>
-        <span>الصنائع والقبائل</span>
-      </button>
+          <button class="tool-menu-item" id="btn-open-regions">
+            <span class="tool-menu-icon" style="background: #e0f2fe; color: #0369a1;">🗺️</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">أطلس الأقاليم الكبرى</span>
+              <span class="tool-menu-desc">تصفية واستعراض أقاليم العالم الإسلامي</span>
+            </div>
+          </button>
 
-      <button id="btn-open-guide" class="btn-header-action" title="دليل ميزات واستخدام المنصة وسجل التحديثات" style="background: #fef3c7; border-color: #d97706; color: #78350f;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-        <span>دليل الموقع والتحديثات</span>
-      </button>
+          <button class="tool-menu-item" id="btn-open-quiz">
+            <span class="tool-menu-icon" style="background: #fdf4ff; color: #a21caf;">💡</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">تحدي ومسابقة الأنساب</span>
+              <span class="tool-menu-desc">اختبار معرفتك التراثية في الأنساب والبلدان</span>
+            </div>
+          </button>
 
-      <button id="btn-open-stats" class="btn-header-action" title="إحصائيات ومعلومات المشروع">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 20V10"></path>
-          <path d="M12 20V4"></path>
-          <path d="M6 20v-6"></path>
-        </svg>
-        <span>الإحصائيات</span>
-      </button>
+          <button class="tool-menu-item" id="btn-open-nongeo">
+            <span class="tool-menu-icon" style="background: #f0fdf4; color: #15803d;">🔨</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">الصنائع والمهن والقبائل</span>
+              <span class="tool-menu-desc">أنساب غير مكانية (المعدل، الكاتب، الوراق...)</span>
+            </div>
+          </button>
 
-      <button id="btn-reset-view" class="btn-header-action" title="إعادة ضبط زاوية الخريطة">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-          <path d="M3 3v5h5"></path>
-        </svg>
-        <span>نظرة عامة</span>
-      </button>
+          <div class="tools-menu-divider"></div>
+
+          <button class="tool-menu-item" id="btn-open-guide">
+            <span class="tool-menu-icon" style="background: #fffbeb; color: #d97706;">📖</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">دليل المنصة والتحديثات</span>
+              <span class="tool-menu-desc">شرح ميزات الموقع وسجل الإصدارات</span>
+            </div>
+          </button>
+
+          <button class="tool-menu-item" id="btn-open-stats">
+            <span class="tool-menu-icon" style="background: #f1f5f9; color: #475569;">📊</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">إحصائيات المنصة</span>
+              <span class="tool-menu-desc">الأرقام الدقيقة لكافة المواد والأعلام والبلدان</span>
+            </div>
+          </button>
+
+          <button class="tool-menu-item" id="btn-reset-view">
+            <span class="tool-menu-icon" style="background: #f8fafc; color: #64748b;">🔄</span>
+            <div class="tool-menu-text">
+              <span class="tool-menu-title">إعادة ضبط الخريطة</span>
+              <span class="tool-menu-desc">الرجوع للمشهد الشامل لبلدان العالم الإسلامي</span>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
   `;
 
@@ -177,18 +196,37 @@ export function createHeader({
   const btnGuide = header.querySelector('#btn-open-guide');
   const btnCorpus = header.querySelector('#btn-open-corpus-explorer');
 
-  brandHome.addEventListener('click', onResetMap);
-  btnReset.addEventListener('click', onResetMap);
-  btnStats.addEventListener('click', onOpenStats);
-  if (btnCorpus) btnCorpus.addEventListener('click', openCorpusExplorer);
-  if (btnCalc) btnCalc.addEventListener('click', onOpenCalc);
-  if (btnRegions) btnRegions.addEventListener('click', onOpenRegions);
-  if (btnQuiz) btnQuiz.addEventListener('click', onOpenQuiz);
-  if (btnGuide) btnGuide.addEventListener('click', onOpenGuide);
+  // ربط زر وقائمة الأدوات التراثية
+  const btnToggleTools = header.querySelector('#btn-toggle-tools');
+  const toolsMenu = header.querySelector('#tools-dropdown-menu');
 
-  // زر تصفح أنساب الصنائع
+  btnToggleTools.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = toolsMenu.style.display === 'block';
+    toolsMenu.style.display = isOpen ? 'none' : 'block';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!header.querySelector('#tools-menu-wrapper').contains(e.target)) {
+      toolsMenu.style.display = 'none';
+    }
+  });
+
+  // إغلاق قائمة الأدوات عند النقر على أي عنصر منها
+  const closeToolsMenu = () => { toolsMenu.style.display = 'none'; };
+
+  brandHome.addEventListener('click', onResetMap);
+  btnReset.addEventListener('click', () => { closeToolsMenu(); onResetMap(); });
+  btnStats.addEventListener('click', () => { closeToolsMenu(); onOpenStats(); });
+  if (btnCorpus) btnCorpus.addEventListener('click', openCorpusExplorer);
+  if (btnCalc) btnCalc.addEventListener('click', () => { closeToolsMenu(); onOpenCalc(); });
+  if (btnRegions) btnRegions.addEventListener('click', () => { closeToolsMenu(); onOpenRegions(); });
+  if (btnQuiz) btnQuiz.addEventListener('click', () => { closeToolsMenu(); onOpenQuiz(); });
+  if (btnGuide) btnGuide.addEventListener('click', () => { closeToolsMenu(); onOpenGuide(); });
+
+  // زر تصفح أنساب الصنائع من القائمة
   btnNonGeo.addEventListener('click', () => {
-    // فتح أول نسبة مهنية (المعدل) أو عرض قائمة الأنساب المهنية في البحث
+    closeToolsMenu();
     input.value = "المعدل";
     clearBtn.style.display = 'flex';
     performSearch("المعدل", dropdown, onSelectPlace, onSelectScholar, onSelectNonGeoNisba);

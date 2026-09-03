@@ -1,94 +1,163 @@
 /**
- * شريط الزمن الهجري التفاعلي للقرون
+ * شريط مسار القرون الهجرية العمودي على اليسار
+ * تصميم راقٍ وخفيف يدعم الطي والتوسيع، متجاوب بالكامل مع الجوال والشاشات المختلفة
  */
 import { formatCentury } from '../utils/arabic.js';
 
 export function createTimeline({ onCenturyChange }) {
-  const dock = document.createElement('div');
-  dock.className = 'timeline-dock';
+  const rail = document.createElement('div');
+  rail.id = 'timeline-vertical-rail';
+  rail.className = 'timeline-vertical-rail';
 
-  dock.innerHTML = `
-    <div class="timeline-header">
-      <div class="timeline-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="12 6 12 12 16 14"></polyline>
-        </svg>
-        <span>مسار القرون الهجرية والتوزيع الحضاري:</span>
+  rail.innerHTML = `
+    <!-- زر طي/توسيع الشريط العمودي -->
+    <button class="tv-toggle-btn" id="btn-toggle-timeline" title="طي/توسيع شريط القرون">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="tv-toggle-icon">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+
+    <!-- رأس الشريط -->
+    <div class="tv-header">
+      <div class="tv-title-group">
+        <span class="tv-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </span>
+        <span class="tv-title-text">مسار القرون</span>
       </div>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span class="timeline-current-label" id="timeline-current-text">كافة العصور الإسلامية (1هـ - 8هـ)</span>
-        <button class="timeline-all-btn active" id="btn-timeline-all">عرض الكل</button>
-      </div>
+      <button class="tv-all-btn active" id="btn-timeline-all" title="إظهار كافة العصور">الكل</button>
     </div>
 
-    <div class="timeline-track-wrapper">
-      <input 
-        type="range" 
-        id="timeline-range-input" 
-        class="timeline-slider-input" 
-        min="1" 
-        max="8" 
-        step="1" 
-        value="3" 
-      />
+    <!-- وصف العصر المختار -->
+    <div class="tv-active-era-badge" id="timeline-current-text">
+      كافة العصور الإسلامية (1هـ - 8هـ)
     </div>
 
-    <div class="timeline-markers-labels">
-      <span class="timeline-marker-item" data-century="1">1هـ (الصحابة)</span>
-      <span class="timeline-marker-item" data-century="2">2هـ (المذاهب)</span>
-      <span class="timeline-marker-item" data-century="3">3هـ (الكتب الستة)</span>
-      <span class="timeline-marker-item" data-century="4">4هـ (الموسوعات)</span>
-      <span class="timeline-marker-item" data-century="5">5هـ (النظاميات)</span>
-      <span class="timeline-marker-item" data-century="6">6هـ (السمعاني)</span>
-      <span class="timeline-marker-item" data-century="7">7هـ (ياقوت)</span>
-      <span class="timeline-marker-item" data-century="8">8هـ (ابن حجر)</span>
+    <!-- قائمة القرون العمودية -->
+    <div class="tv-nodes-list">
+      <div class="tv-node-item" data-century="1" title="القرن 1هـ: عصر الصحابة والفتوحات">
+        <span class="tv-node-badge">1هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">عصر الصحابة</span>
+          <span class="tv-node-desc">الفتوحات الكبرى</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="2" title="القرن 2هـ: عصر المذاهب الفقهية">
+        <span class="tv-node-badge">2هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">الأئمة والمذاهب</span>
+          <span class="tv-node-desc">تدوين الفقه واللغة</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="3" title="القرن 3هـ: الكتب الستة">
+        <span class="tv-node-badge">3هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">الكتب الستة</span>
+          <span class="tv-node-desc">أئمة الحديث الكبار</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="4" title="القرن 4هـ: عصر الموسوعات">
+        <span class="tv-node-badge">4هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">الموسوعات</span>
+          <span class="tv-node-desc">العصر الذهبي للعلوم</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="5" title="القرن 5هـ: المدارس النظامية">
+        <span class="tv-node-badge">5هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">النظاميات</span>
+          <span class="tv-node-desc">أئمة الكلام والأصول</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="6" title="القرن 6هـ: عصر السمعاني">
+        <span class="tv-node-badge">6هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">عصر السمعاني</span>
+          <span class="tv-node-desc">كتاب «الأنساب»</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="7" title="القرن 7هـ: عصر ياقوت">
+        <span class="tv-node-badge">7هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">عصر ياقوت</span>
+          <span class="tv-node-desc">«معجم البلدان»</span>
+        </div>
+      </div>
+
+      <div class="tv-node-item" data-century="8" title="القرن 8هـ: الشروح الكبرى">
+        <span class="tv-node-badge">8هـ</span>
+        <div class="tv-node-details">
+          <span class="tv-node-name">عصر ابن حجر</span>
+          <span class="tv-node-desc">الشروح والموسوعات</span>
+        </div>
+      </div>
     </div>
   `;
 
-  const slider = dock.querySelector('#timeline-range-input');
-  const label = dock.querySelector('#timeline-current-text');
-  const btnAll = dock.querySelector('#btn-timeline-all');
-  const markers = dock.querySelectorAll('.timeline-marker-item');
+  const label = rail.querySelector('#timeline-current-text');
+  const btnAll = rail.querySelector('#btn-timeline-all');
+  const toggleBtn = rail.querySelector('#btn-toggle-timeline');
+  const toggleIcon = rail.querySelector('#tv-toggle-icon');
+  const nodes = rail.querySelectorAll('.tv-node-item');
 
-  let isAll = true;
+  let isCollapsed = false;
+  let activeCentury = null;
 
   function updateCentury(century) {
-    isAll = false;
+    activeCentury = century;
     btnAll.classList.remove('active');
     label.textContent = formatCentury(century);
-    markers.forEach((m) => {
-      m.classList.toggle('active', parseInt(m.getAttribute('data-century')) === century);
+    nodes.forEach((n) => {
+      n.classList.toggle('active', parseInt(n.getAttribute('data-century')) === century);
     });
     onCenturyChange(century);
   }
 
   function setAll() {
-    isAll = true;
+    activeCentury = null;
     btnAll.classList.add('active');
     label.textContent = "كافة العصور الإسلامية (1هـ - 8هـ)";
-    markers.forEach((m) => m.classList.remove('active'));
+    nodes.forEach((n) => n.classList.remove('active'));
     onCenturyChange(null);
   }
 
-  slider.addEventListener('input', (e) => {
-    updateCentury(parseInt(e.target.value));
-  });
-
-  btnAll.addEventListener('click', () => {
-    setAll();
-  });
-
-  markers.forEach((m) => {
-    m.addEventListener('click', () => {
-      const c = parseInt(m.getAttribute('data-century'));
-      slider.value = c;
-      updateCentury(c);
+  // أحداث النقر على القرون
+  nodes.forEach((node) => {
+    node.addEventListener('click', () => {
+      const c = parseInt(node.getAttribute('data-century'));
+      if (activeCentury === c) {
+        setAll(); // النقر مرة ثانية يعيد عرض الكل
+      } else {
+        updateCentury(c);
+      }
     });
   });
 
+  btnAll.addEventListener('click', setAll);
+
+  // طي وتوسيع الشريط العمودي
+  toggleBtn.addEventListener('click', () => {
+    isCollapsed = !isCollapsed;
+    rail.classList.toggle('collapsed', isCollapsed);
+    if (isCollapsed) {
+      toggleIcon.innerHTML = '<polyline points="9 18 15 12 9 6"></polyline>';
+    } else {
+      toggleIcon.innerHTML = '<polyline points="15 18 9 12 15 6"></polyline>';
+    }
+  });
+
   return {
-    element: dock,
+    element: rail,
     reset: setAll
   };
 }
