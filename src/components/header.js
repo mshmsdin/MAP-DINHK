@@ -34,10 +34,10 @@ export function createHeader({
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>معجم الأنساب والبلدان</h1>
+        <h1>موسوعة البلدان والكنى القديمة</h1>
         <p>
-          <span>للسمعاني وياقوت الحموي</span>
-          <span class="badge-sources">أنساب مكانية ومهنية وقبيلية</span>
+          <span>خريطة توزع علماء الحديث والأعلام</span>
+          <span class="badge-sources">مراجعة أمهات المصادر</span>
         </p>
       </div>
     </div>
@@ -95,6 +95,13 @@ export function createHeader({
 
     <!-- أزرار الهيدر الخفيفة غير المزدحمة -->
     <div class="header-actions">
+      <!-- زر كيف تستفيد من المنصة /f1 -->
+      <button id="btn-open-guide-hero" class="btn-guide-hero" title="دليل شامل يعلمك كيف تستفيد من المنصة وتحقق أقصى نفع منها (الرابط: /f1)">
+        <span style="font-size: 0.95rem;">💡</span>
+        <span>كيف تستفيد؟</span>
+        <span class="guide-hero-badge">/f1</span>
+      </button>
+
       <!-- الزر الرئيسي: الموسوعة الشاملة (16,800 مادة) -->
       <button id="btn-open-corpus-explorer" class="btn-corpus-hero" title="استعراض وتصفح كامل مواد معجم البلدان والأنساب بنسبة 100% (16,800 مادة)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -222,6 +229,8 @@ export function createHeader({
   if (btnCalc) btnCalc.addEventListener('click', () => { closeToolsMenu(); onOpenCalc(); });
   if (btnRegions) btnRegions.addEventListener('click', () => { closeToolsMenu(); onOpenRegions(); });
   if (btnQuiz) btnQuiz.addEventListener('click', () => { closeToolsMenu(); onOpenQuiz(); });
+  const btnGuideHero = header.querySelector('#btn-open-guide-hero');
+  if (btnGuideHero) btnGuideHero.addEventListener('click', onOpenGuide);
   if (btnGuide) btnGuide.addEventListener('click', () => { closeToolsMenu(); onOpenGuide(); });
 
   // زر تصفح أنساب الصنائع من القائمة

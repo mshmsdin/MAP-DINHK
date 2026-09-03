@@ -162,5 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // تهيئة خريطة Leaflet بعد التركيب
   mapView.init();
 
-  console.log("منصة معجم الأنساب والبلدان تعمل بنجاح مع حاسبة المسالك وأطلس الأقاليم والمسابقات.");
+  // فحص مسار الرابط /f1 لفتح صفحة الدليل والتعليمات الشاملة فورياً
+  if (window.location.pathname === '/f1' || window.location.hash === '#f1' || window.location.search.includes('f1')) {
+    setTimeout(() => {
+      guideModal.show();
+    }, 200);
+  }
+
+  console.log("موسوعة أسماء البلدان والكنى القديمة تعمل بنجاح.");
 });

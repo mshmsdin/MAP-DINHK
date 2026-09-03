@@ -12,7 +12,15 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- مستكشف الموسوعة الشاملة لكتابي معجم البلدان والأنساب (16,800 مادة) -->
+  <!-- دليل الباحث والزائر: كيف تستفيد من المنصة وتحقق أقصى نفع منها؟ (/f1) -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/f1</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- مستكشف الموسوعة الشاملة لأكثر من 16,800 مادة تراثية موثقة -->
   <url>
     <loc>https://map-dinhk.mshmsdin.com/#corpus</loc>
     <lastmod>2026-09-03</lastmod>
