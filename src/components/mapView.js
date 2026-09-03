@@ -49,6 +49,12 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
   const dayTopoUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
   const darkBaseUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
 
+  function getPopupTopPadding() {
+    const header = document.querySelector('.main-header');
+    const headerBottom = header?.getBoundingClientRect().bottom || 0;
+    return Math.max(24, Math.ceil(headerBottom + 20));
+  }
+
   function initMap() {
     // التمركز في قلب العالم الإسلامي التاريخي
     map = L.map(container, {
@@ -168,7 +174,7 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
         minWidth: 260,
         closeButton: true,
         autoPan: true,
-        autoPanPaddingTopLeft: L.point(40, 220),
+        autoPanPaddingTopLeft: L.point(40, getPopupTopPadding()),
         autoPanPaddingBottomRight: L.point(40, 100),
         offset: L.point(0, -10)
       });
@@ -187,11 +193,9 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
         }
       });
 
-      // عند النقر على العلامة: تحريك الخريطة مع إزاحة جغرافية شمالية مدروسة
-      // لتستقر العلامة والنافذة المنبثقة بالكامل في الثلث الأوسط أسفل شريط الهيدر ببراح تام
-      marker.on('click', () => {
-        const latOffset = map.getZoom() > 7 ? 0.9 : 2.0;
-        map.panTo([place.lat + latOffset, place.lng], { animate: true, duration: 0.6 });
+      // تحديث هامش البوب أب قبل فتحه حتى يبقى أسفل الهيدر في كل مقاس شاشة
+      marker.on('preclick', () => {
+        marker.getPopup().options.autoPanPaddingTopLeft = L.point(40, getPopupTopPadding());
       });
 
       markersLayer.addLayer(marker);
@@ -375,7 +379,7 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
         minWidth: 260,
         closeButton: true,
         autoPan: true,
-        autoPanPaddingTopLeft: L.point(40, 220),
+        autoPanPaddingTopLeft: L.point(40, getPopupTopPadding()),
         autoPanPaddingBottomRight: L.point(40, 100),
         offset: L.point(0, -10)
       });
@@ -390,8 +394,8 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
         }
       });
 
-      marker.on('click', () => {
-        map.panTo([place.lat + 1.8, place.lng], { animate: true });
+      marker.on('preclick', () => {
+        marker.getPopup().options.autoPanPaddingTopLeft = L.point(40, getPopupTopPadding());
       });
 
       markersLayer.addLayer(marker);
