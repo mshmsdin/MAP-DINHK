@@ -32,7 +32,11 @@ ENV HOST=0.0.0.0
 
 # Copy package descriptors and install only production dependencies if needed
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm ci --omit=dev \
+    && npm cache clean --force
 
 # Copy static build output and production server
 COPY --from=builder --chown=node:node /app/dist ./dist
