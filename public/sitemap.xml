@@ -4,9 +4,9 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   
-  <!-- الصفحة الرئيسية لمنصة الأنساب والبلدان والخرائط التفاعلية -->
+  <!-- الصفحة الرئيسية لموسوعة أسماء البلدان والكنى والأنساب القديمة -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/</loc>
+    <loc>https://din.hk/map/</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -14,7 +14,7 @@
 
   <!-- دليل الباحث والزائر: كيف تستفيد من المنصة وتحقق أقصى نفع منها؟ (/f1) -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/f1</loc>
+    <loc>https://din.hk/map/f1</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
@@ -22,7 +22,7 @@
 
   <!-- مستكشف الموسوعة الشاملة لأكثر من 16,800 مادة تراثية موثقة -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#corpus</loc>
+    <loc>https://din.hk/map/#corpus</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
@@ -30,7 +30,7 @@
 
   <!-- أطلس الأقاليم الإسلامية الكبرى وحواضرها -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#regions</loc>
+    <loc>https://din.hk/map/#regions</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
@@ -38,7 +38,7 @@
 
   <!-- حاسبة المسالك والفراسخ ومراحل السير التاريخية -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#calculator</loc>
+    <loc>https://din.hk/map/#calculator</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
@@ -46,7 +46,7 @@
 
   <!-- تحدي ومسابقة الأنساب والبلدان التراثية -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#quiz</loc>
+    <loc>https://din.hk/map/#quiz</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
@@ -54,7 +54,7 @@
 
   <!-- دليل المنصة وسجل الإصدارات والتحديثات -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#guide</loc>
+    <loc>https://din.hk/map/#guide</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
@@ -62,7 +62,7 @@
 
   <!-- إحصائيات وتوثيق مواد المنصة ومصادرها -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#stats</loc>
+    <loc>https://din.hk/map/#stats</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
@@ -70,7 +70,7 @@
 
   <!-- أنساب الصنائع والمهن والقبائل غير المكانية -->
   <url>
-    <loc>https://map-dinhk.mshmsdin.com/#occupations</loc>
+    <loc>https://din.hk/map/#occupations</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>

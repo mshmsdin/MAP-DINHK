@@ -30,8 +30,8 @@ export function createGuideModal() {
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <h3 class="modal-title" style="font-size: 1.15rem; margin: 0;">دليل الباحث والزائر: كيف تستفيد من المنصة؟</h3>
-              <span class="guide-url-badge" id="btn-copy-guide-url" title="انقر لنسخ الرابط المباشر /f1">
-                🔗 /f1
+              <span class="guide-url-badge" id="btn-copy-guide-url" title="انقر لنسخ الرابط المباشر din.hk/map/f1">
+                🔗 din.hk/map/f1
               </span>
             </div>
             <span style="font-size: 0.76rem; color: #64748b; font-weight: 600;">
@@ -212,7 +212,7 @@ export function createGuideModal() {
 
       <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
         <div style="font-size: 0.74rem; color: #64748b;">
-          رابط هذه الصفحة الدائم: <strong>https://map-dinhk.mshmsdin.com/f1</strong>
+          رابط هذه الصفحة الدائم: <strong>https://din.hk/map/f1</strong>
         </div>
         <button id="btn-guide-close-bottom" style="
           background: var(--gold-primary);
@@ -233,20 +233,24 @@ export function createGuideModal() {
   const closeBottomBtn = backdrop.querySelector('#btn-guide-close-bottom');
   const btnCopyUrl = backdrop.querySelector('#btn-copy-guide-url');
 
+  const BASE_PREFIX = (import.meta.env.BASE_URL || '/map/').replace(/\/$/, '');
+  const F1_PATH = `${BASE_PREFIX}/f1`.replace('//', '/');
+  const HOME_PATH = `${BASE_PREFIX}/`.replace('//', '/');
+
   function open(updateHistory = true) {
     backdrop.classList.add('open');
-    if (updateHistory && window.location.pathname !== '/f1') {
+    if (updateHistory && !window.location.pathname.endsWith('/f1')) {
       try {
-        window.history.pushState({ modal: 'guide' }, '', '/f1');
+        window.history.pushState({ modal: 'guide' }, '', F1_PATH);
       } catch(e) {}
     }
   }
 
   function close(updateHistory = true) {
     backdrop.classList.remove('open');
-    if (updateHistory && window.location.pathname === '/f1') {
+    if (updateHistory && window.location.pathname.endsWith('/f1')) {
       try {
-        window.history.pushState(null, '', '/');
+        window.history.pushState(null, '', HOME_PATH);
       } catch(e) {}
     }
   }
@@ -257,12 +261,12 @@ export function createGuideModal() {
     if (e.target === backdrop) close(true);
   });
 
-  // نسخ الرابط /f1
+  // نسخ الرابط din.hk/map/f1
   btnCopyUrl.addEventListener('click', () => {
-    const fullUrl = `${window.location.origin}/f1`;
+    const fullUrl = `https://din.hk/map/f1`;
     navigator.clipboard.writeText(fullUrl).then(() => {
       btnCopyUrl.textContent = 'تم النسخ بنجاح! ✓';
-      setTimeout(() => { btnCopyUrl.textContent = '🔗 /f1'; }, 2000);
+      setTimeout(() => { btnCopyUrl.textContent = '🔗 din.hk/map/f1'; }, 2000);
     });
   });
 
@@ -289,9 +293,9 @@ export function createGuideModal() {
     });
   });
 
-  // استماع للزر الرجوع بالمتصفح (Popstate)
+  // استماع لزر الرجوع بالمتصفح (Popstate)
   window.addEventListener('popstate', () => {
-    if (window.location.pathname === '/f1' || window.location.hash === '#f1') {
+    if (window.location.pathname.endsWith('/f1') || window.location.hash === '#f1') {
       open(false);
     } else {
       close(false);

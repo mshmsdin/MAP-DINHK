@@ -10,6 +10,8 @@ const letterCache = new Map();
 /**
  * تحميل الفهرس الموحد العام للموسوعة (886 كيلوبايت)
  */
+const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+
 export async function loadMasterCorpusIndex() {
   if (masterIndex) return masterIndex;
   if (isIndexLoading) {
@@ -21,7 +23,7 @@ export async function loadMasterCorpusIndex() {
 
   isIndexLoading = true;
   try {
-    const res = await fetch('/corpus/master_index.json');
+    const res = await fetch(`${BASE_PATH}/corpus/master_index.json`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     masterIndex = await res.json();
     return masterIndex;
@@ -87,7 +89,7 @@ export async function fetchCorpusEntry(id, book, letterHex) {
     try {
       const folder = book === 'y' ? 'yaqut' : 'samani';
       const filename = `${folder}_${letterHex}.json`;
-      const res = await fetch(`/corpus/${folder}/${filename}`);
+      const res = await fetch(`${BASE_PATH}/corpus/${folder}/${filename}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       letterData = await res.json();
       letterCache.set(cacheKey, letterData);

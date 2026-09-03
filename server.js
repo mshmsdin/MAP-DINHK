@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   // معالجة نقطة فحص الصحة (Healthcheck) لـ Docker و Coolify
-  if (req.url === '/health' || req.url === '/ready') {
+  if (req.url === '/health' || req.url === '/ready' || req.url === '/map/health' || req.url === '/map/ready') {
     res.writeHead(200, {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-cache, no-store, must-revalidate'
@@ -77,8 +77,16 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // دعم العمل تحت المسار الفرعي /map وتجريد البادئة عند البحث في مجلد dist
+  let cleanPath = decodedPath;
+  if (cleanPath.startsWith('/map/')) {
+    cleanPath = cleanPath.slice(4); // إزالة بادئة /map ليبقى /...
+  } else if (cleanPath === '/map') {
+    cleanPath = '/';
+  }
+
   // حماية من Path Traversal
-  const safePath = path.normalize(decodedPath).replace(/^(\.\.[\/\\])+/, '');
+  const safePath = path.normalize(cleanPath).replace(/^(\.\.[\/\\])+/, '');
   let filePath = path.join(DIST_DIR, safePath);
 
   // إذا كان المسار مجلداً، ابحث عن index.html داخله
@@ -103,13 +111,14 @@ const server = http.createServer((req, res) => {
 
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  const relativePath = safePath.replace(/\\/g, '/');
 
   // ضبط الكاش بحسب نوع الملف
   if (isFallback || ext === '.html') {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  } else if (safePath.startsWith('/assets/')) {
+  } else if (relativePath.startsWith('/assets/')) {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  } else if (safePath.startsWith('/corpus/')) {
+  } else if (relativePath.startsWith('/corpus/')) {
     res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
   } else {
     res.setHeader('Cache-Control', 'public, max-age=3600');

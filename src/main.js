@@ -162,8 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // تهيئة خريطة Leaflet بعد التركيب
   mapView.init();
 
-  // فحص مسار الرابط /f1 لفتح صفحة الدليل والتعليمات الشاملة فورياً
-  if (window.location.pathname === '/f1' || window.location.hash === '#f1' || window.location.search.includes('f1')) {
+  // فحص مسار الرابط /map/f1 أو /f1 لفتح صفحة الدليل والتعليمات الشاملة فورياً
+  if (window.location.pathname.endsWith('/f1') || window.location.hash === '#f1' || window.location.search.includes('f1')) {
     setTimeout(() => {
       guideModal.show();
     }, 200);

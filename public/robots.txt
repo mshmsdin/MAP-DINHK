@@ -1,9 +1,9 @@
 # ==============================================================================
-# robots.txt for Ansab & Buldan Digital Platform (MAP-DINHK)
+# robots.txt for Encyclopedia of Ancient Buldan & Kunya (din.hk/map)
 # ==============================================================================
 
 User-agent: *
-Allow: /
+Allow: /map/
 
 # Sitemap index location
-Sitemap: https://map-dinhk.mshmsdin.com/sitemap.xml
+Sitemap: https://din.hk/map/sitemap.xml
