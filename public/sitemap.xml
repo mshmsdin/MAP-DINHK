@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- الصفحة الرئيسية لمنصة الأنساب والبلدان والخرائط التفاعلية -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- مستكشف الموسوعة الشاملة لكتابي معجم البلدان والأنساب (16,800 مادة) -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#corpus</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- أطلس الأقاليم الإسلامية الكبرى وحواضرها -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#regions</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- حاسبة المسالك والفراسخ ومراحل السير التاريخية -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#calculator</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- تحدي ومسابقة الأنساب والبلدان التراثية -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#quiz</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- دليل المنصة وسجل الإصدارات والتحديثات -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#guide</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- إحصائيات وتوثيق مواد المنصة ومصادرها -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#stats</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+
+  <!-- أنساب الصنائع والمهن والقبائل غير المكانية -->
+  <url>
+    <loc>https://map-dinhk.mshmsdin.com/#occupations</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+</urlset>

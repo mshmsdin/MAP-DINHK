@@ -1,0 +1,33 @@
+# ==============================================================================
+# Docker Compose for Ansab & Buldan Digital Platform (MAP-DINHK)
+# Target: Production / Coolify / Local Docker
+# Internal Port: 3000 | Node.js 24 LTS Bookworm Slim
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mshmsdin/map-dinhk:latest
+    container_name: map-dinhk-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - APP_URL=https://map-dinhk.mshmsdin.com
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M

@@ -36,6 +36,8 @@
 
 ## 🚀 التشغيل والتطوير والنشر السحابي (Production & Deployment)
 
+> 📖 **للاطلاع على دليل التثبيت الشامل خطوة بخطوة، راجع: [INSTALL.md](file:///e:/موقع%20البلدان/INSTALL.md)**
+
 ### المواصفات البيئية المدعومة
 * **نظام التشغيل الخادم**: Ubuntu 24.04 LTS
 * **بيئة الحاويات**: Docker + Coolify + Traefik + Cloudflare Tunnel
@@ -43,8 +45,9 @@
 * **المنفذ الداخلي (Internal Port)**: `3000` (`HOST=0.0.0.0`)
 * **نقطة فحص الصحة (Health Check)**: `GET /health` تعيد HTTP 200 `{"status":"ok"}`
 * **إدارة الإغلاق الآمن**: التعامل السلس مع إشارات `SIGTERM` و `SIGINT`
+* **محركات البحث و SEO**: خريطة موقع قياسية `sitemap.xml` وملف `robots.txt` وبيانات منظمة Schema.org وبطاقات Open Graph.
 
-### أوامر التطوير والإنتاج
+### أوامر التطوير والإنتاج السريع
 ```bash
 # تثبيت الحزم التزامني الحتمي
 npm ci
@@ -57,6 +60,9 @@ npm run build
 
 # تشغيل خادم الإنتاج (Port 3000)
 npm start
+
+# التشغيل بنقرة واحدة عبر Docker Compose
+docker compose up -d
 ```
 
 ### النشر عبر Docker و Coolify
