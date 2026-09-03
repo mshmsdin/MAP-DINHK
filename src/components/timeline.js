@@ -78,26 +78,26 @@ export function createTimeline({ onCenturyChange }) {
         </div>
       </div>
 
-      <div class="tv-node-item" data-century="6" title="القرن 6هـ: عصر السمعاني">
+      <div class="tv-node-item" data-century="6" title="القرن السادس الهجري">
         <span class="tv-node-badge">6هـ</span>
         <div class="tv-node-details">
-          <span class="tv-node-name">عصر السمعاني</span>
+          <span class="tv-node-name">القرن السادس</span>
           <span class="tv-node-desc">كتاب «الأنساب»</span>
         </div>
       </div>
 
-      <div class="tv-node-item" data-century="7" title="القرن 7هـ: عصر ياقوت">
+      <div class="tv-node-item" data-century="7" title="القرن السابع الهجري">
         <span class="tv-node-badge">7هـ</span>
         <div class="tv-node-details">
-          <span class="tv-node-name">عصر ياقوت</span>
+          <span class="tv-node-name">القرن السابع</span>
           <span class="tv-node-desc">«معجم البلدان»</span>
         </div>
       </div>
 
-      <div class="tv-node-item" data-century="8" title="القرن 8هـ: الشروح الكبرى">
+      <div class="tv-node-item" data-century="8" title="القرن الثامن الهجري">
         <span class="tv-node-badge">8هـ</span>
         <div class="tv-node-details">
-          <span class="tv-node-name">عصر ابن حجر</span>
+          <span class="tv-node-name">القرن الثامن</span>
           <span class="tv-node-desc">الشروح والموسوعات</span>
         </div>
       </div>
