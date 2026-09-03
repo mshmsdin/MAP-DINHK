@@ -1,0 +1,18 @@
+{
+  "name": "ansab-wa-buldan",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "منصة جغرافية تراثية لكتابي الأنساب للسمعاني ومعجم البلدان لياقوت الحموي",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "lucide": "^1.39.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}
