@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "منصة جغرافية تراثية لكتابي الأنساب للسمعاني ومعجم البلدان لياقوت الحموي",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "node server.js",
     "preview": "vite preview"
   },
   "dependencies": {

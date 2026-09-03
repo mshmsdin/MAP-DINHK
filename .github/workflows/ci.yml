@@ -1,0 +1,35 @@
+name: CI Build Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js 24 LTS
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+
+    - name: Install dependencies deterministically
+      run: npm ci
+
+    - name: Build production bundle
+      run: npm run build
+
+    - name: Test production server healthcheck
+      run: |
+        node server.js &
+        SERVER_PID=$!
+        sleep 3
+        curl -f http://127.0.0.1:3000/health || exit 1
+        kill -s SIGTERM $SERVER_PID
