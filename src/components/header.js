@@ -95,10 +95,10 @@ export function createHeader({
 
     <!-- أزرار الهيدر الخفيفة غير المزدحمة -->
     <div class="header-actions">
-      <!-- زر كيف تستفيد من المنصة /f1 -->
+      <!-- زر التعليمات /f1 -->
       <button id="btn-open-guide-hero" class="btn-guide-hero" title="دليل شامل يعلمك كيف تستفيد من المنصة وتحقق أقصى نفع منها (الرابط: /f1)">
         <span style="font-size: 0.95rem;">💡</span>
-        <span>كيف تستفيد؟</span>
+        <span>تعليمات</span>
         <span class="guide-hero-badge">/f1</span>
       </button>
 
