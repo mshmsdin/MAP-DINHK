@@ -44,37 +44,60 @@ export function createModals() {
     modalTitle.textContent = "إحصائيات المنصة ومصادر التوثيق التراثي";
 
     modalBody.innerHTML = `
-      <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+        <div class="stat-box">
+          <div class="stat-number">36,775</div>
+          <div class="stat-title">مادة تراثية كاملة (100%)</div>
+        </div>
         <div class="stat-box">
           <div class="stat-number">${places.length}</div>
-          <div class="stat-title">حاضرة وبلد موثق</div>
+          <div class="stat-title">حاضرة وموضع على الخريطة</div>
         </div>
         <div class="stat-box">
           <div class="stat-number">${scholars.length + nonGeoNisbas.reduce((acc, x) => acc + x.scholars.length, 0)}</div>
           <div class="stat-title">عالم وإمام محقق</div>
         </div>
         <div class="stat-box">
-          <div class="stat-number">${nonGeoNisbas.length}</div>
-          <div class="stat-title">نسبة صناعية وقبيلية</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-number">${regions.length}</div>
-          <div class="stat-title">إقليم تاريخي</div>
+          <div class="stat-number">5</div>
+          <div class="stat-title">أمهات كتب تراثية كاملة</div>
         </div>
       </div>
 
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px; margin-bottom: 16px;">
-        <h4 style="color: var(--gold-300); font-size: 0.95rem; margin-bottom: 8px;">عن كتاب «الأنساب» للإمام السمعاني (ت 562هـ):</h4>
-        <p style="font-size: 0.84rem; line-height: 1.7; color: var(--text-secondary);">
-          أعظم موسوعة تراثية في ضبط الأنساب والألقاب والكنى والنسبة إلى البلدان والقبائل والصنائع. تميز الإمام السمعاني بالترحال الواسع في العالم الإسلامي وتدوين سماعاته مباشرة من شيوخ كل بلد، وضبط حروف كل نسبة بالكلمات والحركات درءاً للتصحيف.
-        </p>
-      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; padding-left: 4px;">
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
+          <h4 style="color: #60a5fa; font-size: 0.92rem; margin-bottom: 6px;">📍 1. «معجم البلدان» - الإمام ياقوت الحموي (ت 626هـ) [12,358 مادة]:</h4>
+          <p style="font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary); margin: 0;">
+            تاج المعاجم الجغرافية في الحضارة الإسلامية، يجمع بين الجغرافيا والتاريخ والتراجم والأدب، مقدماً سجلاً حياً لأحوال الحواضر الإسلامية.
+          </p>
+        </div>
 
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px;">
-        <h4 style="color: var(--lapis-light); font-size: 0.95rem; margin-bottom: 8px;">عن كتاب «معجم البلدان» للإمام ياقوت الحموي (ت 626هـ):</h4>
-        <p style="font-size: 0.84rem; line-height: 1.7; color: var(--text-secondary);">
-          تاج المعاجم الجغرافية في الحضارة الإسلامية. لم يقتصر ياقوت على تحديد أسماء المدن والجبال والأنهار وإحداثياتها والأقاليم السبعة، بل مزج الجغرافيا بالتاريخ والتراجم والأدب، مقدماً سجلاً حياً لأحوال الحواضر الإسلامية قبيل الغزو المغولي.
-        </p>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
+          <h4 style="color: #2dd4bf; font-size: 0.92rem; margin-bottom: 6px;">🗺️ 2. «مراصد الاطلاع على أسماء الأمكنة والبقاع» - صفي الدين البغدادي (ت 739هـ) [11,642 مادة]:</h4>
+          <p style="font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary); margin: 0;">
+            تهذيب وضبط فائق الدقة لمعجم البلدان لياقوت الحموي، حرره وصحح ضبط حروفه بحروف المعجم وحذف الحشو والأشعار الطويلة ليجعله عمدة في تحقيق المواضع.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
+          <h4 style="color: #4ade80; font-size: 0.92rem; margin-bottom: 6px;">🏺 3. «معجم ما استُعجِم من أسماء البلاد والمواضع» - أبو عبيد البكري الأندلسي (ت 487هـ) [3,750 مادة]:</h4>
+          <p style="font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary); margin: 0;">
+            أقدم المعاجم الجغرافية المفردة، خزانة شعرية وجغرافية فريدة ضبطت مواضع جزيرة العرب وأشعار الجاهلية وصدر الإسلام وأماكن السيرة والحديث النبوي.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
+          <h4 style="color: #fbbf24; font-size: 0.92rem; margin-bottom: 6px;">📜 4. «كتاب الأنساب» - الإمام أبو سعد السمعاني (ت 562هـ) [4,442 مادة]:</h4>
+          <p style="font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary); margin: 0;">
+            أعظم موسوعة تراثية في ضبط الأنساب والألقاب والكنى والنسبة إلى البلدان والقبائل والصنائع بالسماع المباشر وضبط الحروف بالكلمات والحركات.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
+          <h4 style="color: #c084fc; font-size: 0.92rem; margin-bottom: 6px;">✨ 5. «اللباب في تهذيب الأنساب» - عز الدين ابن الأثير الجزري (ت 630هـ) [4,583 مادة]:</h4>
+          <p style="font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary); margin: 0;">
+            تهذيب واستدراك بارع على كتاب الأنساب للسمعاني، استدرك فيه ابن الأثير أوهاماً وأضاف مئات الأنساب والأعلام التي فاتت السمعاني.
+          </p>
+        </div>
       </div>
 
       <div style="margin-top: 18px; text-align: center;">

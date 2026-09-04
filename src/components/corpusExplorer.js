@@ -1,14 +1,14 @@
 /**
  * مستكشف الموسوعة التراثية الشاملة لكتابي «معجم البلدان» و«الأنساب» (16,800 مادة كاملة 100%)
  */
-import { loadMasterCorpusIndex } from '../utils/corpusSearch.js';
+import { loadMasterCorpusIndex, BOOK_META } from '../utils/corpusSearch.js';
 import { openCorpusEntry, findMatchingMapPlace } from './corpusModal.js';
 import { normalizeArabic } from '../utils/arabic.js';
 import { places } from '../data/places.js';
 import { palestinePlaces } from '../data/palestineGeography.js';
 
 let explorerDialog = null;
-let currentBook = 'y'; // 'y' (Yaqut), 's' (Samani)
+let currentBook = 'y'; // 'y' (Yaqut), 'm' (Marasid), 'b' (Bakri), 's' (Samani), 'l' (Lubab)
 let selectedLetter = 'all';
 let searchQuery = '';
 let allEntries = [];
@@ -31,19 +31,28 @@ export function initCorpusExplorer(options = {}) {
     <div class="corpus-explorer-dialog">
       <div class="explorer-header">
         <div class="explorer-title-area">
-          <h2>📚 المستكشف الموسوعي الشامل (100% من الكتابين)</h2>
-          <p class="explorer-subtitle">استيعاب كامل وغير منقوص لـ <strong>12,358 موضعاً</strong> في معجم البلدان لياقوت و<strong>4,442 نسبة</strong> في أنساب السمعاني</p>
+          <h2>📚 المستكشف الموسوعي الشامل (36,775 مادة كاملة 100%)</h2>
+          <p class="explorer-subtitle">استيعاب كامل ونصوص أصلية غير منقوصة لخمسة من أمهات كتب الجغرافيا والبلدان والأنساب</p>
         </div>
         <button id="btn-close-explorer" class="corpus-close-btn">&times;</button>
       </div>
 
-      <!-- تبويبات اختيار الكتاب -->
+      <!-- تبويبات أمهات الكتب الخمس -->
       <div class="explorer-book-tabs">
-        <button class="book-tab active" id="tab-book-yaqut" data-book="y">
-          📍 معجم البلدان - ياقوت الحموي <span class="tab-badge">12,358 مادة</span>
+        <button class="book-tab active" id="tab-book-y" data-book="y" title="معجم البلدان لياقوت الحموي">
+          📍 معجم البلدان <span class="tab-badge">12,358</span>
         </button>
-        <button class="book-tab" id="tab-book-samani" data-book="s">
-          📜 كتاب الأنساب - أبو سعد السمعاني <span class="tab-badge">4,442 مادة</span>
+        <button class="book-tab" id="tab-book-m" data-book="m" title="مراصد الاطلاع للبغدادي (تهذيب وضبط معجم البلدان)">
+          🗺️ مراصد الاطلاع <span class="tab-badge">11,642</span>
+        </button>
+        <button class="book-tab" id="tab-book-b" data-book="b" title="معجم ما استعجم للبكري الأندلسي (جزيرة العرب وأشعارها)">
+          🏺 معجم ما استعجم <span class="tab-badge">3,750</span>
+        </button>
+        <button class="book-tab" id="tab-book-s" data-book="s" title="كتاب الأنساب لأبي سعد السمعاني">
+          📜 أنساب السمعاني <span class="tab-badge">4,442</span>
+        </button>
+        <button class="book-tab" id="tab-book-l" data-book="l" title="اللباب في تهذيب الأنساب لابن الأثير الجزري">
+          ✨ اللباب لابن الأثير <span class="tab-badge">4,583</span>
         </button>
       </div>
 
@@ -74,9 +83,13 @@ export function initCorpusExplorer(options = {}) {
     if (e.target === explorerDialog) closeCorpusExplorer();
   });
 
-  // تبديل الكتاب
-  explorerDialog.querySelector('#tab-book-yaqut').addEventListener('click', () => switchBook('y'));
-  explorerDialog.querySelector('#tab-book-samani').addEventListener('click', () => switchBook('s'));
+  // تبديل الكتب الخمسة
+  ['y', 'm', 'b', 's', 'l'].forEach(code => {
+    const tabBtn = explorerDialog.querySelector(`#tab-book-${code}`);
+    if (tabBtn) {
+      tabBtn.addEventListener('click', () => switchBook(code));
+    }
+  });
 
   // أزرار الحروف
   explorerDialog.querySelectorAll('.letter-btn').forEach(btn => {
@@ -113,8 +126,12 @@ export function closeCorpusExplorer() {
 
 function switchBook(book) {
   currentBook = book;
-  explorerDialog.querySelector('#tab-book-yaqut').classList.toggle('active', book === 'y');
-  explorerDialog.querySelector('#tab-book-samani').classList.toggle('active', book === 's');
+  ['y', 'm', 'b', 's', 'l'].forEach(code => {
+    const tabBtn = explorerDialog.querySelector(`#tab-book-${code}`);
+    if (tabBtn) {
+      tabBtn.classList.toggle('active', code === book);
+    }
+  });
   renderEntries();
 }
 
@@ -155,11 +172,12 @@ function renderEntries() {
     const badgeText = match ? (match.isDirect ? 'على الخريطة' : (match.parentName || match.place.name)) : '';
     const badgeTitle = match ? (match.isDirect ? 'منزل بالإحداثيات المباشرة على الخريطة' : `مربوط جغرافياً بحاضرة أو نطاق ${match.parentName || match.place.name}`) : '';
 
+    const meta = BOOK_META[entry.b] || BOOK_META.y;
     return `
     <div class="explorer-card" data-id="${entry.id || entry.i}" data-book="${entry.b}" data-letter="${entry.l}">
       <div class="card-top" style="display: flex; align-items: center; justify-content: space-between;">
-        <span class="card-badge ${entry.b === 'y' ? 'badge-yaqut' : 'badge-samani'}">
-          ${entry.b === 'y' ? 'موضع جغرافي' : 'نسب ورجال'}
+        <span class="card-badge badge-${meta.folder}">
+          ${meta.icon} ${meta.shortName}
         </span>
         ${match ? `<span class="badge-map-available" title="${badgeTitle}">📍 ${badgeText}</span>` : ''}
       </div>

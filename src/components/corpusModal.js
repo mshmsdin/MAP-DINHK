@@ -1,7 +1,7 @@
 /**
  * نافذة القراءة الموسوعية والمستكشف الكامل لكتابي «معجم البلدان» و«الأنساب» (100%)
  */
-import { fetchCorpusEntry, searchCorpus, loadMasterCorpusIndex } from '../utils/corpusSearch.js';
+import { fetchCorpusEntry, searchCorpus, loadMasterCorpusIndex, BOOK_META } from '../utils/corpusSearch.js';
 import { setupPronunciationButtons, speakArabic } from '../utils/audioSpeech.js';
 import { normalizeArabic, extractArabicStem } from '../utils/arabic.js';
 import { places } from '../data/places.js';
@@ -150,11 +150,23 @@ export async function openCorpusEntry(id, book, letterHex) {
     return;
   }
 
+  const meta = BOOK_META[book] || BOOK_META.y;
+
   // ملء البيانات
   titleEl.textContent = entry.title;
   bookBadge.textContent = entry.bookName;
-  bookBadge.className = `corpus-badge ${book === 'y' ? 'badge-yaqut' : 'badge-samani'}`;
-  idBadge.textContent = book === 'y' ? `مادة معجم البلدان رقم #${entry.id.replace('y_', '')}` : `نسب السمعاني رقم #${entry.num || entry.id.replace('s_', '')}`;
+  bookBadge.className = `corpus-badge badge-${meta.folder}`;
+
+  let idLabel = '';
+  switch (book) {
+    case 'y': idLabel = `مادة معجم البلدان رقم #${entry.id.replace('y_', '')}`; break;
+    case 's': idLabel = `نسب أنساب السمعاني رقم #${entry.num || entry.id.replace('s_', '')}`; break;
+    case 'b': idLabel = `مادة معجم ما استعجم رقم #${entry.id.replace('b_', '')}`; break;
+    case 'l': idLabel = `نسب اللباب لابن الأثير رقم #${entry.id.replace('l_', '')}`; break;
+    case 'm': idLabel = `مادة مراصد الاطلاع رقم #${entry.id.replace('m_', '')}`; break;
+    default: idLabel = `المادة رقم #${entry.id}`;
+  }
+  idBadge.textContent = idLabel;
 
   // تنسيق النص الكامل وفقراته
   const paragraphs = entry.text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
@@ -180,49 +192,69 @@ export async function openCorpusEntry(id, book, letterHex) {
     viewMapBtn.style.display = 'none';
   }
 
-  // التحقق من وجود مادة مقابلة في الكتاب الآخر (Cross-referencing)
+  // التحقق من وجود مادة مقابلة في أمهات الكتب الأخرى (Cross-referencing متعدد الأبعاد)
   checkCrossReference(entry, crossRefBox);
 }
 
 /**
- * الربط الذكي المتبادل بين معجم البلدان والأنساب
+ * الربط الذكي المتبادل المتعدد بين أمهات كتب البلدان والأنساب الخمسة
  */
 async function checkCrossReference(entry, crossRefBox) {
-  const isYaqut = entry.book === 'y';
-  const targetBook = isYaqut ? 's' : 'y';
+  const { book, title } = entry;
+  const targetBooks = [];
 
-  // البحث في الكتاب الآخر عن الكلمة أو النسبة
-  let searchTerms = [entry.title];
-  if (isYaqut) {
-    searchTerms.push('ال' + entry.title);
-    searchTerms.push('ال' + entry.title + 'ي');
-  } else {
-    // السمعاني: إذا كانت "البخاري" نبحث عن "بخارى"
-    const stripped = entry.title.replace(/^ال/, '').replace(/ي$/, '');
-    searchTerms.push(stripped);
+  // تحديد الأولويات البحثية بحسب طبيعة الكتاب
+  if (book === 'y') {
+    targetBooks.push({ code: 'm', label: 'مراصد الاطلاع للبغدادي (تهذيب وضبط)' });
+    targetBooks.push({ code: 'b', label: 'معجم ما استعجم للبكري' });
+    targetBooks.push({ code: 's', label: 'كتاب الأنساب للسمعاني' });
+    targetBooks.push({ code: 'l', label: 'اللباب لابن الأثير' });
+  } else if (book === 'm') {
+    targetBooks.push({ code: 'y', label: 'معجم البلدان لياقوت (النص الموسع الأصلي)' });
+    targetBooks.push({ code: 'b', label: 'معجم ما استعجم للبكري' });
+  } else if (book === 'b') {
+    targetBooks.push({ code: 'y', label: 'معجم البلدان لياقوت' });
+    targetBooks.push({ code: 'm', label: 'مراصد الاطلاع للبغدادي' });
+  } else if (book === 's') {
+    targetBooks.push({ code: 'l', label: 'اللباب في تهذيب الأنساب لابن الأثير (استدراكات وتحقيقات)' });
+    targetBooks.push({ code: 'y', label: 'معجم البلدان لياقوت (الموضع الجغرافي)' });
+  } else if (book === 'l') {
+    targetBooks.push({ code: 's', label: 'أنساب السمعاني (الأصل المبسوط)' });
+    targetBooks.push({ code: 'y', label: 'معجم البلدان لياقوت (الموضع الجغرافي)' });
   }
 
-  for (const term of searchTerms) {
-    const matches = await searchCorpus(term, { book: targetBook, limit: 3 });
-    if (matches.length > 0) {
-      const match = matches[0];
-      const otherBookLabel = isYaqut ? 'كتاب الأنساب للسمعاني' : 'معجم البلدان لياقوت';
-      const promptLabel = isYaqut ? `📜 توجد نسبة مقابلة في ${otherBookLabel}: «${match.title}»` : `📍 يوجد موضع جغرافي مقابل في ${otherBookLabel}: «${match.title}»`;
+  // إعداد مصطلحات البحث المناسبة
+  const searchTerms = [title];
+  if (book === 's' || book === 'l') {
+    const stripped = title.replace(/^ال/, '').replace(/ي$/, '');
+    if (stripped.length >= 2) searchTerms.push(stripped);
+  } else {
+    searchTerms.push('ال' + title);
+    searchTerms.push('ال' + title + 'ي');
+  }
 
-      crossRefBox.innerHTML = `
-        <div class="cross-ref-content">
-          <span>${promptLabel}</span>
-          <button class="cross-ref-btn" id="btn-open-cross-ref">
-            افتح النص المقابل 100% &larr;
-          </button>
-        </div>
-      `;
-      crossRefBox.style.display = 'block';
+  for (const target of targetBooks) {
+    for (const term of searchTerms) {
+      const matches = await searchCorpus(term, { book: target.code, limit: 1 });
+      if (matches.length > 0) {
+        const match = matches[0];
+        const meta = BOOK_META[target.code] || BOOK_META.y;
 
-      modalContainer.querySelector('#btn-open-cross-ref').addEventListener('click', () => {
-        openCorpusEntry(match.id, match.book, match.letterHex);
-      });
-      break;
+        crossRefBox.innerHTML = `
+          <div class="cross-ref-content">
+            <span>${meta.icon} توجد مادة مقابلة في <strong>${target.label}</strong>: «${match.title}»</span>
+            <button class="cross-ref-btn" id="btn-open-cross-ref">
+              طالع النص المقابل 100% &larr;
+            </button>
+          </div>
+        `;
+        crossRefBox.style.display = 'block';
+
+        modalContainer.querySelector('#btn-open-cross-ref').addEventListener('click', () => {
+          openCorpusEntry(match.id, match.book, match.letterHex);
+        });
+        return;
+      }
     }
   }
 }

@@ -7,7 +7,7 @@ import { places } from '../data/places.js';
 import { palestinePlaces } from '../data/palestineGeography.js';
 import { scholars } from '../data/scholars.js';
 import { nonGeoNisbas } from '../data/nonGeoNisbas.js';
-import { searchCorpus } from '../utils/corpusSearch.js';
+import { searchCorpus, BOOK_META } from '../utils/corpusSearch.js';
 import { openCorpusEntry, findMatchingMapPlace } from './corpusModal.js';
 import { openCorpusExplorer } from './corpusExplorer.js';
 
@@ -108,14 +108,14 @@ export function createHeader({
         <span class="guide-hero-badge">/f1</span>
       </button>
 
-      <!-- الزر الرئيسي: الموسوعة الشاملة (16,800 مادة) -->
-      <button id="btn-open-corpus-explorer" class="btn-corpus-hero" title="استعراض وتصفح كامل مواد معجم البلدان والأنساب بنسبة 100% (16,800 مادة)">
+      <!-- الزر الرئيسي: الموسوعة الشاملة (36,775 مادة) -->
+      <button id="btn-open-corpus-explorer" class="btn-corpus-hero" title="استعراض وتصفح أمهات كتب البلدان والأنساب الخمسة بنسبة 100% (36,775 مادة)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
         </svg>
         <span class="hero-btn-title">الموسوعة الشاملة</span>
-        <span class="hero-btn-badge">16,800</span>
+        <span class="hero-btn-badge">36,775</span>
       </button>
 
       <!-- زر قائمة الأدوات التراثية المجمعة (لتخفيف الازدحام) -->
@@ -488,7 +488,7 @@ async function performSearch(query, dropdown, onSelectPlace, onSelectScholar, on
     html += `
       <div class="search-category-title" style="background: #e0f2fe; color: #0284c7;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-        <span>مواد الموسوعة التراثية الشاملة (100% من الكتابين - 16,800 مادة)</span>
+        <span>مواد الموسوعة التراثية الشاملة (أمهات الكتب الخمس - 36,775 مادة)</span>
       </div>
     `;
     corpusMatches.forEach((item) => {
@@ -500,13 +500,13 @@ async function performSearch(query, dropdown, onSelectPlace, onSelectScholar, on
           <div>
             <div class="result-main-text" style="font-weight: 700; color: #0f172a;">${item.title}</div>
             <div class="result-sub-text">
-              ${item.book === 'y' ? '📍 موضع في «معجم البلدان» لياقوت الحموي' : '📜 نسبة في «كتاب الأنساب» للسمعاني'}
+              ${(BOOK_META[item.book] || {}).icon || '📖'} في «${(BOOK_META[item.book] || {}).shortName || 'الموسوعة'}» (${(BOOK_META[item.book] || {}).author || ''})
               ${matchingPlace ? ` • <span style="color: #059669; font-weight: 600;">متوفر على الخريطة التفاعلية</span>` : ''}
             </div>
           </div>
           <div style="display: flex; gap: 6px; align-items: center;">
             ${matchingPlace ? `<button class="btn-corpus-map-direct" data-map-place-id="${matchingPlace.id}" style="background: #10b981; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">عرض على الخريطة</button>` : ''}
-            <span class="result-tag" style="background: ${item.book === 'y' ? '#dbeafe' : '#fef3c7'}; color: ${item.book === 'y' ? '#1e40af' : '#92400e'};">اقرأ النص الكامل 100%</span>
+            <span class="result-tag" class="badge-${(BOOK_META[item.book] || {}).folder || 'yaqut'}" style="font-size: 0.72rem; padding: 2px 6px;">اقرأ النص الكامل 100%</span>
           </div>
         </div>
       `;
