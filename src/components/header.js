@@ -4,10 +4,11 @@
  */
 import { normalizeArabic, extractArabicStem, tokensMatch } from '../utils/arabic.js';
 import { places } from '../data/places.js';
+import { palestinePlaces } from '../data/palestineGeography.js';
 import { scholars } from '../data/scholars.js';
 import { nonGeoNisbas } from '../data/nonGeoNisbas.js';
 import { searchCorpus } from '../utils/corpusSearch.js';
-import { openCorpusEntry } from './corpusModal.js';
+import { openCorpusEntry, findMatchingMapPlace } from './corpusModal.js';
 import { openCorpusExplorer } from './corpusExplorer.js';
 
 export function createHeader({
@@ -68,6 +69,11 @@ export function createHeader({
       <!-- وسوم الاقتراح السريع للأنساب والبيوتات العلمية -->
       <div class="quick-suggest-wrapper">
         <div class="quick-suggest-scroll" id="quick-suggest-container">
+          <span class="quick-suggest-pill" data-query="فلسطين" style="border-color: #86efac; background: #f0fdf4; color: #15803d; font-weight: 800;">فِلَسْطِين 🇵🇸</span>
+          <span class="quick-suggest-pill" data-query="غزة">غَزَّة</span>
+          <span class="quick-suggest-pill" data-query="الهكاري">الهَكَّارِيّ</span>
+          <span class="quick-suggest-pill" data-query="ابن الصلاح">ابْن الصَّلَاح</span>
+          <span class="quick-suggest-pill" data-query="أربيل">أَرْبِيل</span>
           <span class="quick-suggest-pill" data-query="الجزائر">الجَزَائِر</span>
           <span class="quick-suggest-pill" data-query="تلمسان">تِلِمْسَان</span>
           <span class="quick-suggest-pill" data-query="ليبيا">لِيبْيَا</span>
@@ -425,7 +431,7 @@ async function performSearch(query, dropdown, onSelectPlace, onSelectScholar, on
               الموقع الحالي: ${place.modernName} • ${place.modernCountry}
             </div>
           </div>
-          <span class="result-tag">عرض في الخريطة</span>
+          <span class="result-tag">عرض على الخريطة</span>
         </div>
       `;
     });
@@ -486,15 +492,22 @@ async function performSearch(query, dropdown, onSelectPlace, onSelectScholar, on
       </div>
     `;
     corpusMatches.forEach((item) => {
+      const match = findMatchingMapPlace(item.title);
+      const matchingPlace = match ? match.place : null;
+
       html += `
-        <div class="search-result-item" data-type="corpus" data-corpus-id="${item.id}" data-corpus-book="${item.book}" data-corpus-letter="${item.letterHex}">
+        <div class="search-result-item" data-type="corpus" data-corpus-id="${item.id}" data-corpus-book="${item.book}" data-corpus-letter="${item.letterHex}" data-place-id="${matchingPlace ? matchingPlace.id : ''}">
           <div>
             <div class="result-main-text" style="font-weight: 700; color: #0f172a;">${item.title}</div>
             <div class="result-sub-text">
               ${item.book === 'y' ? '📍 موضع في «معجم البلدان» لياقوت الحموي' : '📜 نسبة في «كتاب الأنساب» للسمعاني'}
+              ${matchingPlace ? ` • <span style="color: #059669; font-weight: 600;">متوفر على الخريطة التفاعلية</span>` : ''}
             </div>
           </div>
-          <span class="result-tag" style="background: ${item.book === 'y' ? '#dbeafe' : '#fef3c7'}; color: ${item.book === 'y' ? '#1e40af' : '#92400e'};">اقرأ النص الكامل 100%</span>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            ${matchingPlace ? `<button class="btn-corpus-map-direct" data-map-place-id="${matchingPlace.id}" style="background: #10b981; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">عرض على الخريطة</button>` : ''}
+            <span class="result-tag" style="background: ${item.book === 'y' ? '#dbeafe' : '#fef3c7'}; color: ${item.book === 'y' ? '#1e40af' : '#92400e'};">اقرأ النص الكامل 100%</span>
+          </div>
         </div>
       `;
     });
@@ -505,7 +518,20 @@ async function performSearch(query, dropdown, onSelectPlace, onSelectScholar, on
 
   // ربط النقرات
   dropdown.querySelectorAll('.search-result-item').forEach((item) => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', (e) => {
+      // إذا نقر المستخدم مباشرة على زر "عرض على الخريطة" الملحق بنتيجة الموسوعة
+      const mapDirectBtn = e.target.closest('.btn-corpus-map-direct');
+      if (mapDirectBtn) {
+        e.stopPropagation();
+        const placeId = mapDirectBtn.getAttribute('data-map-place-id');
+        const place = places.find((p) => p.id === placeId) || palestinePlaces.find((p) => p.id === placeId);
+        if (place && onSelectPlace) {
+          onSelectPlace(place);
+          dropdown.style.display = 'none';
+          return;
+        }
+      }
+
       const type = item.getAttribute('data-type');
       if (type === 'nongeo-nisba') {
         const itemId = item.getAttribute('data-item-id');

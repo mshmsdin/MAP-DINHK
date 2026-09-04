@@ -4,7 +4,7 @@
   "type": "module",
   "description": "منصة جغرافية تراثية لكتابي الأنساب للسمعاني ومعجم البلدان لياقوت الحموي",
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=20"
   },
   "scripts": {
     "dev": "vite",
@@ -13,8 +13,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@maplibre/maplibre-gl-leaflet": "^0.1.4",
     "leaflet": "^1.9.4",
-    "lucide": "^1.39.0"
+    "lucide": "^1.39.0",
+    "maplibre-gl": "^6.7.0"
   },
   "devDependencies": {
     "vite": "^5.4.11"

@@ -2,18 +2,24 @@
  * مستكشف الموسوعة التراثية الشاملة لكتابي «معجم البلدان» و«الأنساب» (16,800 مادة كاملة 100%)
  */
 import { loadMasterCorpusIndex } from '../utils/corpusSearch.js';
-import { openCorpusEntry } from './corpusModal.js';
+import { openCorpusEntry, findMatchingMapPlace } from './corpusModal.js';
 import { normalizeArabic } from '../utils/arabic.js';
+import { places } from '../data/places.js';
+import { palestinePlaces } from '../data/palestineGeography.js';
 
 let explorerDialog = null;
 let currentBook = 'y'; // 'y' (Yaqut), 's' (Samani)
 let selectedLetter = 'all';
 let searchQuery = '';
 let allEntries = [];
+let explorerPlaceHandler = null;
 
 const ARABIC_LETTERS = ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'];
 
-export function initCorpusExplorer() {
+export function initCorpusExplorer(options = {}) {
+  if (options.onSelectPlace) {
+    explorerPlaceHandler = options.onSelectPlace;
+  }
   if (document.getElementById('corpus-explorer-root')) return;
 
   explorerDialog = document.createElement('div');
@@ -144,17 +150,24 @@ function renderEntries() {
   // عرض أول 120 مادة لتجنب ثقل الرندر مع زر تحميل المزيد إذا رغب المستخدم
   const displaySlice = filtered.slice(0, 150);
 
-  grid.innerHTML = displaySlice.map(entry => `
+  grid.innerHTML = displaySlice.map(entry => {
+    const match = findMatchingMapPlace(entry.t);
+    return `
     <div class="explorer-card" data-id="${entry.id || entry.i}" data-book="${entry.b}" data-letter="${entry.l}">
-      <div class="card-top">
+      <div class="card-top" style="display: flex; align-items: center; justify-content: space-between;">
         <span class="card-badge ${entry.b === 'y' ? 'badge-yaqut' : 'badge-samani'}">
           ${entry.b === 'y' ? 'موضع جغرافي' : 'نسب ورجال'}
         </span>
+        ${match ? `<span class="badge-map-available" title="منزل بالإحداثيات على الخريطة التفاعلية">📍 على الخريطة</span>` : ''}
       </div>
       <h3 class="card-title">${entry.t}</h3>
-      <button class="card-read-btn">اقرأ النص الكامل 100% &larr;</button>
+      <div class="card-actions-row">
+        <button class="card-read-btn" style="flex: 1;">اقرأ النص 100% &larr;</button>
+        ${match ? `<button class="card-map-btn" data-place-id="${match.place.id}" title="عرض مباشر على الخريطة التفاعلية">🗺️ الخريطة</button>` : ''}
+      </div>
     </div>
-  `).join('');
+    `;
+  }).join('');
 
   if (filtered.length > 150) {
     grid.innerHTML += `
@@ -164,7 +177,20 @@ function renderEntries() {
     `;
   }
 
-  // ربط أزرار القراءة
+  // ربط أزرار عرض الخريطة المباشر
+  grid.querySelectorAll('.card-map-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const placeId = btn.getAttribute('data-place-id');
+      const found = places.find(p => p.id === placeId) || palestinePlaces.find(p => p.id === placeId);
+      if (found && explorerPlaceHandler) {
+        closeCorpusExplorer();
+        explorerPlaceHandler(found);
+      }
+    });
+  });
+
+  // ربط أزرار القراءة لفتح النص الكامل
   grid.querySelectorAll('.explorer-card').forEach(card => {
     card.addEventListener('click', () => {
       const id = card.getAttribute('data-id');

@@ -24,11 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // تهيئة أصوات النطق التراثي
   initAudioSpeech();
 
-  // تهيئة قارئ ومستكشف الموسوعة التراثية الشاملة لكتابي معجم البلدان والأنساب (100%)
-  initCorpusModal();
-  initCorpusExplorer();
-  loadMasterCorpusIndex(); // تحميل مسبق في الخلفية
-
   let currentSelectedPlace = null;
 
   // 1. إنشاء النوافذ المنبثقة الأساسية (الإحصائيات والبطاقات)
@@ -92,20 +87,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // 7. دالة التمركز المشتركة حول أي حاضرة أو موضع تاريخي
+  const handleSelectPlace = (place) => {
+    currentSelectedPlace = place;
+    mapView.flyToPlace(place, 8);
+    drawer.openPlace(place);
+  };
+
+  // تهيئة قارئ ومستكشف الموسوعة التراثية الشاملة لكتابي معجم البلدان والأنساب (100%)
+  initCorpusModal({ onSelectPlace: handleSelectPlace });
+  initCorpusExplorer({ onSelectPlace: handleSelectPlace });
+  loadMasterCorpusIndex(); // تحميل مسبق في الخلفية
+
   // 7. إنشاء الخريطة التفاعلية
   const mapView = createMapView({
-    onSelectPlace: (place) => {
-      currentSelectedPlace = place;
-      mapView.flyToPlace(place, 8);
-      drawer.openPlace(place);
-    },
+    onSelectPlace: handleSelectPlace,
     onSelectScholar: (scholar) => {
       if (scholar.placeId) {
         const place = places.find((p) => p.id === scholar.placeId);
         if (place) {
-          currentSelectedPlace = place;
-          mapView.flyToPlace(place, 8);
-          drawer.openPlace(place);
+          handleSelectPlace(place);
         }
       }
     }

@@ -3,12 +3,71 @@
  */
 import { fetchCorpusEntry, searchCorpus, loadMasterCorpusIndex } from '../utils/corpusSearch.js';
 import { setupPronunciationButtons, speakArabic } from '../utils/audioSpeech.js';
-import { normalizeArabic } from '../utils/arabic.js';
+import { normalizeArabic, extractArabicStem } from '../utils/arabic.js';
+import { places } from '../data/places.js';
+import { palestinePlaces } from '../data/palestineGeography.js';
 
 let modalContainer = null;
 let currentFontSize = 1.05; // rem
+let selectPlaceHandler = null;
 
-export function initCorpusModal() {
+export function setCorpusPlaceHandler(handler) {
+  selectPlaceHandler = handler;
+}
+
+let lookupMap = null;
+
+function buildLookupMap() {
+  if (lookupMap) return lookupMap;
+  lookupMap = new Map();
+
+  // 1. المطابقة مع الحواضر والبلدان التاريخية (561 موضعاً)
+  for (const p of places) {
+    const matchObj = { place: p, type: 'place' };
+    if (p.name) lookupMap.set(normalizeArabic(p.name), matchObj);
+    if (p.nisba) lookupMap.set(normalizeArabic(p.nisba), matchObj);
+    if (p.otherSpellings) {
+      for (const sp of p.otherSpellings) {
+        lookupMap.set(normalizeArabic(sp), matchObj);
+      }
+    }
+    const stemName = extractArabicStem(p.name);
+    if (stemName && !lookupMap.has(stemName)) lookupMap.set(stemName, matchObj);
+    if (p.nisba) {
+      const stemNisba = extractArabicStem(p.nisba);
+      if (stemNisba && !lookupMap.has(stemNisba)) lookupMap.set(stemNisba, matchObj);
+    }
+  }
+
+  // 2. المطابقة مع معالم وحواضر فلسطين العربية
+  for (const pal of palestinePlaces) {
+    const matchObj = { place: pal, type: 'palestine' };
+    if (pal.name) lookupMap.set(normalizeArabic(pal.name), matchObj);
+  }
+
+  return lookupMap;
+}
+
+export function findMatchingMapPlace(rawTitle) {
+  if (!rawTitle) return null;
+  const cleanTitle = rawTitle.trim()
+    .replace(/^[\s\(\)\[\]"«»\d\-\.\/:]+/g, '')
+    .replace(/[\s\(\)\[\]"«»\d\-\.\/:]+$/g, '');
+  const normT = normalizeArabic(cleanTitle);
+  const map = buildLookupMap();
+
+  if (map.has(normT)) return map.get(normT);
+
+  const stemT = extractArabicStem(cleanTitle);
+  if (stemT && map.has(stemT)) return map.get(stemT);
+
+  return null;
+}
+
+export function initCorpusModal(options = {}) {
+  if (options.onSelectPlace) {
+    selectPlaceHandler = options.onSelectPlace;
+  }
   if (document.getElementById('corpus-modal-root')) return;
 
   modalContainer = document.createElement('div');
@@ -37,8 +96,12 @@ export function initCorpusModal() {
       </div>
 
       <div class="corpus-modal-body">
-        <div class="corpus-title-row">
-          <h2 id="corpus-entry-title" class="corpus-entry-title"></h2>
+        <div class="corpus-title-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <h2 id="corpus-entry-title" class="corpus-entry-title" style="margin: 0;"></h2>
+          <button id="btn-corpus-view-map" class="corpus-map-btn" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span id="corpus-map-btn-text">📍 عرض على الخريطة التفاعلية</span>
+          </button>
         </div>
 
         <div id="corpus-cross-ref-box" class="corpus-cross-ref-box" style="display: none;"></div>
@@ -131,6 +194,24 @@ export async function openCorpusEntry(id, book, letterHex) {
   const paragraphs = entry.text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
   textEl.innerHTML = paragraphs.map(p => `<p class="corpus-p">${p.trim()}</p>`).join('');
   textEl.style.fontSize = `${currentFontSize}rem`;
+
+  // فحص ما إذا كان الموضع متوفراً على الخريطة التفاعلية
+  const viewMapBtn = modalContainer.querySelector('#btn-corpus-view-map');
+  const viewMapBtnText = modalContainer.querySelector('#corpus-map-btn-text');
+  const matching = findMatchingMapPlace(entry.title);
+
+  if (matching) {
+    viewMapBtn.style.display = 'inline-flex';
+    viewMapBtnText.textContent = `📍 عرض «${matching.place.name}» على الخريطة`;
+    viewMapBtn.onclick = () => {
+      closeCorpusModal();
+      if (selectPlaceHandler) {
+        selectPlaceHandler(matching.place);
+      }
+    };
+  } else {
+    viewMapBtn.style.display = 'none';
+  }
 
   // التحقق من وجود مادة مقابلة في الكتاب الآخر (Cross-referencing)
   checkCrossReference(entry, crossRefBox);

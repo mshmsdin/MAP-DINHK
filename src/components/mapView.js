@@ -4,9 +4,26 @@
  */
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import * as maplibregl from 'maplibre-gl';
+import '@maplibre/maplibre-gl-leaflet';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { places } from '../data/places.js';
 import { scholars } from '../data/scholars.js';
 import { setupPronunciationButtons } from '../utils/audioSpeech.js';
+import { palestinePlaces } from '../data/palestineGeography.js';
+
+// تهيئة ملحق النصوص العربية لربط الحروف من اليمين إلى اليسار في خريطة المتجهات
+if (maplibregl && typeof maplibregl.getRTLTextPluginStatus === 'function' && maplibregl.getRTLTextPluginStatus() === 'unavailable') {
+  try {
+    maplibregl.setRTLTextPlugin(
+      'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js',
+      null,
+      true
+    );
+  } catch (e) {
+    console.warn('MapLibre RTL plugin error:', e);
+  }
+}
 
 export function createMapView({ onSelectPlace, onSelectScholar }) {
   const container = document.createElement('div');
@@ -40,14 +57,30 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
   let map;
   let markersLayer;
   let rihlaLayer;
+  let palestineLayer;
+  let isPalestineLayerActive = true;
   let currentTileLayer;
-  let currentTileMode = 'arabic'; // 'arabic' (default - أسماء عربية أصيلة), 'satellite', 'topo', 'dark'
+  let currentTileMode = 'arabic'; // 'arabic' (Vector tiles: 100% Arabic, 0 Hebrew), 'satellite', 'natgeo', 'dark'
 
-  // خريطة الأساس الأصلية باللغة العربية (OpenStreetMap) تدعم أسماء الدول والمدن والبحار والمعالم بالعربية
-  const arabicOsmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  // خريطة الأساس الأصلية باللغة العربية (المتجهات بدلاً من التايلز التي تحتوي عبرية)
   const satTileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  const dayTopoUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
+  const natGeoTileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}';
   const darkBaseUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+
+  const arabicStyleUrl = (import.meta.env.BASE_URL || '/map/').replace(/\/$/, '') + '/arabic-map-style.json';
+
+  function createArabicVectorLayer() {
+    try {
+      return L.maplibreGL({
+        style: arabicStyleUrl,
+        interactive: false,
+        pane: 'tilePane'
+      });
+    } catch (e) {
+      console.warn('Vector layer initialization fallback:', e);
+      return L.tileLayer(natGeoTileUrl, { maxZoom: 16 });
+    }
+  }
 
   function getPopupTopPadding() {
     const header = document.querySelector('.main-header');
@@ -66,39 +99,190 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
       attributionControl: false
     });
 
-    // الخريطة الأصلية بالأسماء العربية هي الطبقة الأساسية
-    currentTileLayer = L.tileLayer(arabicOsmUrl, {
-      maxZoom: 19,
-      attribution: 'OpenStreetMap العربية'
-    }).addTo(map);
+    // الخريطة المتجهة المعربة كلياً هي الطبقة الأساسية
+    currentTileLayer = createArabicVectorLayer().addTo(map);
 
     markersLayer = L.layerGroup().addTo(map);
     rihlaLayer = L.layerGroup().addTo(map);
+    palestineLayer = L.layerGroup().addTo(map);
 
     renderMarkers();
+    renderPalestineLabels();
     updateMarkerLabels();
 
-    map.on('zoomend', updateMarkerLabels);
+    map.on('zoomend', () => {
+      updateMarkerLabels();
+      renderPalestineLabels();
+    });
+
+    map.on('moveend', () => {
+      renderPalestineLabels();
+    });
 
     // أزرار التحكم
     floatingControls.querySelector('#btn-zoom-in').addEventListener('click', () => map.zoomIn());
     floatingControls.querySelector('#btn-zoom-out').addEventListener('click', () => map.zoomOut());
-    
+
     floatingControls.querySelector('#btn-toggle-tiles').addEventListener('click', () => {
       map.removeLayer(currentTileLayer);
       if (currentTileMode === 'arabic') {
         currentTileMode = 'satellite';
         currentTileLayer = L.tileLayer(satTileUrl, { maxZoom: 18 }).addTo(map);
       } else if (currentTileMode === 'satellite') {
-        currentTileMode = 'topo';
-        currentTileLayer = L.tileLayer(dayTopoUrl, { maxZoom: 17 }).addTo(map);
-      } else if (currentTileMode === 'topo') {
+        currentTileMode = 'natgeo';
+        currentTileLayer = L.tileLayer(natGeoTileUrl, { maxZoom: 16 }).addTo(map);
+      } else if (currentTileMode === 'natgeo') {
         currentTileMode = 'dark';
         currentTileLayer = L.tileLayer(darkBaseUrl, { maxZoom: 16 }).addTo(map);
       } else {
         currentTileMode = 'arabic';
-        currentTileLayer = L.tileLayer(arabicOsmUrl, { maxZoom: 19 }).addTo(map);
+        currentTileLayer = createArabicVectorLayer().addTo(map);
       }
+    });
+  }
+
+  function getPalestineItemPriority(item) {
+    if (item.type === 'capital') return 100;
+    if (item.type === 'city_major') return 80;
+    if (item.type === 'city_historic') return 60;
+    if (item.type === 'city') return 40;
+    if (item.type === 'port_historic' || item.type === 'town') return 25;
+    return 10;
+  }
+
+  function renderPalestineLabels() {
+    if (!map || !palestineLayer || !isPalestineLayerActive) return;
+    palestineLayer.clearLayers();
+
+    const zoom = map.getZoom();
+
+    // 1. تصفية الأماكن المسموح بظهورها عند هذا الزوم وترتيبها حسب الأولوية التراثية
+    const eligiblePlaces = palestinePlaces
+      .filter((item) => zoom >= item.minZoom)
+      .sort((a, b) => getPalestineItemPriority(b) - getPalestineItemPriority(a));
+
+    const placedBoxes = [];
+
+    eligiblePlaces.forEach((item) => {
+      const isCapital = item.type === 'capital';
+      const isLandmark = ['water', 'mountain', 'valley', 'river'].includes(item.type);
+
+      // تحويل الإحداثيات الجغرافية إلى إحداثيات الشاشة بالبكسل لكشف ومنع أي تصادم
+      const pt = map.latLngToContainerPoint([item.lat, item.lng]);
+
+      const boxWidth = isCapital ? 125 : (isLandmark ? 100 : 92);
+      const boxHeight = isCapital ? 30 : 25;
+
+      const candidateBox = {
+        left: pt.x - boxWidth / 2,
+        right: pt.x + boxWidth / 2,
+        top: pt.y - boxHeight / 2,
+        bottom: pt.y + boxHeight / 2
+      };
+
+      // فحص التصادم مع الشارات السابقة التي تم قبولها (هامش أمان 10 بكسل أفقياً، 6 بكسل رأسياً)
+      const hasCollision = placedBoxes.some((b) => {
+        return !(
+          candidateBox.right + 10 < b.left ||
+          candidateBox.left - 10 > b.right ||
+          candidateBox.bottom + 6 < b.top ||
+          candidateBox.top - 6 > b.bottom
+        );
+      });
+
+      // منع التداخل: إذا حدث تصادم، نستبعد هذا البادج فوراً لحماية نقاء الخريطة
+      if (hasCollision && !isCapital) return;
+
+      placedBoxes.push(candidateBox);
+
+      // البحث عن الحاضرة المقابلة في قاعدة بيانات الحواضر والعلماء
+      const matchingPlace = places.find(p => 
+        p.name === item.name ||
+        (p.otherSpellings && p.otherSpellings.some(sp => sp === item.name || item.name.includes(sp)))
+      );
+
+      const placeScholars = matchingPlace ? scholars.filter(s => s.placeId === matchingPlace.id) : [];
+
+      let iconHtml;
+      let iconSize = [95, 26];
+      let iconAnchor = [47, 13];
+
+      if (isLandmark) {
+        iconHtml = `
+          <div class="palestine-landmark-badge" title="${item.desc}">
+            <span>📍</span>
+            <span>${item.name}</span>
+          </div>
+        `;
+        iconSize = [100, 24];
+        iconAnchor = [50, 12];
+      } else {
+        iconHtml = `
+          <div class="palestine-city-badge ${isCapital ? 'capital' : ''}" title="${item.desc}">
+            <div class="palestine-city-dot ${isCapital ? 'capital' : ''}"></div>
+            <span class="palestine-city-name">${item.name}</span>
+            ${placeScholars.length > 0 ? `<span class="palestine-scholar-chip" title="${placeScholars.length} من كبار الأعلام">${placeScholars.length}</span>` : ''}
+          </div>
+        `;
+        iconSize = isCapital ? [125, 28] : [100, 24];
+        iconAnchor = [isCapital ? 62 : 50, 12];
+      }
+
+      const icon = L.divIcon({
+        className: 'palestine-map-label-wrapper',
+        html: iconHtml,
+        iconSize: iconSize,
+        iconAnchor: iconAnchor
+      });
+
+      const marker = L.marker([item.lat, item.lng], {
+        icon,
+        zIndexOffset: isCapital ? 900 : (150 + getPalestineItemPriority(item) * 5)
+      });
+
+      const popupHtml = `
+        <div class="popup-card" style="min-width: 250px;">
+          <div class="popup-header" style="border-bottom: 2px solid #16a34a; padding-bottom: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-family: var(--font-title); font-size: 1.15rem; font-weight: 900; color: #15803d;">${item.vocalized || item.name}</span>
+              <span style="font-size: 0.72rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 2px 7px; border-radius: 6px; font-weight: 800;">فلسطين 🇵🇸</span>
+            </div>
+            <div style="font-size: 0.78rem; color: #b45309; font-weight: 700; margin-top: 4px;">
+              ${item.subTitle || 'أرض الإسراء والمعراج والرباط'}
+            </div>
+          </div>
+          <div style="font-size: 0.8rem; line-height: 1.6; color: #334155; margin: 10px 0;">
+            ${item.desc}
+          </div>
+          ${matchingPlace ? `
+            <button class="popup-action-btn" id="btn-open-pal-place-${matchingPlace.id}" style="background: #16a34a; color: #ffffff;">
+              عرض التفاصيل ونصوص السمعاني وياقوت
+            </button>
+          ` : ''}
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, {
+        maxWidth: 300,
+        minWidth: 250,
+        closeButton: true,
+        autoPan: true,
+        offset: L.point(0, -6)
+      });
+
+      marker.on('popupopen', () => {
+        if (matchingPlace) {
+          const btn = document.getElementById(`btn-open-pal-place-${matchingPlace.id}`);
+          if (btn) {
+            btn.onclick = () => {
+              if (onSelectPlace) onSelectPlace(matchingPlace);
+              marker.closePopup();
+            };
+          }
+        }
+      });
+
+      palestineLayer.addLayer(marker);
     });
   }
 
@@ -111,6 +295,11 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
     markersLayer.clearLayers();
 
     places.forEach((place) => {
+      // حجب العلامات الدائرية لحواضر فلسطين أثناء تفعيل طبقة فلسطين العربية منعاً للازدحام والتداخل البصري
+      if (isPalestineLayerActive && place.modernCountry === 'فلسطين') {
+        return;
+      }
+
       const placeScholars = scholars.filter((s) => s.placeId === place.id);
       
       if (filteredCentury !== null) {
