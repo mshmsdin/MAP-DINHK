@@ -152,18 +152,21 @@ function renderEntries() {
 
   grid.innerHTML = displaySlice.map(entry => {
     const match = findMatchingMapPlace(entry.t);
+    const badgeText = match ? (match.isDirect ? 'على الخريطة' : (match.parentName || match.place.name)) : '';
+    const badgeTitle = match ? (match.isDirect ? 'منزل بالإحداثيات المباشرة على الخريطة' : `مربوط جغرافياً بحاضرة أو نطاق ${match.parentName || match.place.name}`) : '';
+
     return `
     <div class="explorer-card" data-id="${entry.id || entry.i}" data-book="${entry.b}" data-letter="${entry.l}">
       <div class="card-top" style="display: flex; align-items: center; justify-content: space-between;">
         <span class="card-badge ${entry.b === 'y' ? 'badge-yaqut' : 'badge-samani'}">
           ${entry.b === 'y' ? 'موضع جغرافي' : 'نسب ورجال'}
         </span>
-        ${match ? `<span class="badge-map-available" title="منزل بالإحداثيات على الخريطة التفاعلية">📍 على الخريطة</span>` : ''}
+        ${match ? `<span class="badge-map-available" title="${badgeTitle}">📍 ${badgeText}</span>` : ''}
       </div>
       <h3 class="card-title">${entry.t}</h3>
       <div class="card-actions-row">
         <button class="card-read-btn" style="flex: 1;">اقرأ النص 100% &larr;</button>
-        ${match ? `<button class="card-map-btn" data-place-id="${match.place.id}" title="عرض مباشر على الخريطة التفاعلية">🗺️ الخريطة</button>` : ''}
+        ${match ? `<button class="card-map-btn" data-entry-title="${entry.t}" title="عرض مباشر على الخريطة التفاعلية">🗺️ الخريطة</button>` : ''}
       </div>
     </div>
     `;
@@ -181,11 +184,11 @@ function renderEntries() {
   grid.querySelectorAll('.card-map-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const placeId = btn.getAttribute('data-place-id');
-      const found = places.find(p => p.id === placeId) || palestinePlaces.find(p => p.id === placeId);
-      if (found && explorerPlaceHandler) {
+      const entryTitle = btn.getAttribute('data-entry-title');
+      const match = findMatchingMapPlace(entryTitle);
+      if (match && match.place && explorerPlaceHandler) {
         closeCorpusExplorer();
-        explorerPlaceHandler(found);
+        explorerPlaceHandler(match.place);
       }
     });
   });

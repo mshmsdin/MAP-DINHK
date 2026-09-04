@@ -7,6 +7,8 @@ import { normalizeArabic, extractArabicStem } from '../utils/arabic.js';
 import { places } from '../data/places.js';
 import { palestinePlaces } from '../data/palestineGeography.js';
 
+import { resolveGeoLocation } from '../utils/geoAnchor.js';
+
 let modalContainer = null;
 let currentFontSize = 1.05; // rem
 let selectPlaceHandler = null;
@@ -15,52 +17,16 @@ export function setCorpusPlaceHandler(handler) {
   selectPlaceHandler = handler;
 }
 
-let lookupMap = null;
-
-function buildLookupMap() {
-  if (lookupMap) return lookupMap;
-  lookupMap = new Map();
-
-  // 1. المطابقة مع الحواضر والبلدان التاريخية (561 موضعاً)
-  for (const p of places) {
-    const matchObj = { place: p, type: 'place' };
-    if (p.name) lookupMap.set(normalizeArabic(p.name), matchObj);
-    if (p.nisba) lookupMap.set(normalizeArabic(p.nisba), matchObj);
-    if (p.otherSpellings) {
-      for (const sp of p.otherSpellings) {
-        lookupMap.set(normalizeArabic(sp), matchObj);
-      }
-    }
-    const stemName = extractArabicStem(p.name);
-    if (stemName && !lookupMap.has(stemName)) lookupMap.set(stemName, matchObj);
-    if (p.nisba) {
-      const stemNisba = extractArabicStem(p.nisba);
-      if (stemNisba && !lookupMap.has(stemNisba)) lookupMap.set(stemNisba, matchObj);
-    }
-  }
-
-  // 2. المطابقة مع معالم وحواضر فلسطين العربية
-  for (const pal of palestinePlaces) {
-    const matchObj = { place: pal, type: 'palestine' };
-    if (pal.name) lookupMap.set(normalizeArabic(pal.name), matchObj);
-  }
-
-  return lookupMap;
-}
-
 export function findMatchingMapPlace(rawTitle) {
-  if (!rawTitle) return null;
-  const cleanTitle = rawTitle.trim()
-    .replace(/^[\s\(\)\[\]"«»\d\-\.\/:]+/g, '')
-    .replace(/[\s\(\)\[\]"«»\d\-\.\/:]+$/g, '');
-  const normT = normalizeArabic(cleanTitle);
-  const map = buildLookupMap();
-
-  if (map.has(normT)) return map.get(normT);
-
-  const stemT = extractArabicStem(cleanTitle);
-  if (stemT && map.has(stemT)) return map.get(stemT);
-
+  const res = resolveGeoLocation(rawTitle);
+  if (res && res.place) {
+    return {
+      place: res.place,
+      type: res.type,
+      isDirect: res.isDirect,
+      parentName: res.parentName
+    };
+  }
   return null;
 }
 
@@ -195,18 +161,19 @@ export async function openCorpusEntry(id, book, letterHex) {
   textEl.innerHTML = paragraphs.map(p => `<p class="corpus-p">${p.trim()}</p>`).join('');
   textEl.style.fontSize = `${currentFontSize}rem`;
 
-  // فحص ما إذا كان الموضع متوفراً على الخريطة التفاعلية
+  // فحص ما إذا كان الموضع متوفراً على الخريطة التفاعلية أو مربوطاً بحاضرة أم/إقليم
   const viewMapBtn = modalContainer.querySelector('#btn-corpus-view-map');
   const viewMapBtnText = modalContainer.querySelector('#corpus-map-btn-text');
-  const matching = findMatchingMapPlace(entry.title);
+  const geoMatch = resolveGeoLocation(entry.title, entry.text);
 
-  if (matching) {
+  if (geoMatch && geoMatch.place) {
     viewMapBtn.style.display = 'inline-flex';
-    viewMapBtnText.textContent = `📍 عرض «${matching.place.name}» على الخريطة`;
+    viewMapBtnText.textContent = geoMatch.label;
+    viewMapBtn.title = geoMatch.description;
     viewMapBtn.onclick = () => {
       closeCorpusModal();
       if (selectPlaceHandler) {
-        selectPlaceHandler(matching.place);
+        selectPlaceHandler(geoMatch.place);
       }
     };
   } else {
