@@ -521,19 +521,28 @@ html, body {
   pointer-events: auto !important;
 }
 
+/* منطقة نقر ممتدة لتسهيل النقر التام بالفأرة أو اللمس حتى لو لم تكن النقطة في المركز تماماً */
+.custom-city-marker::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  cursor: pointer !important;
+  z-index: 2;
+}
+
 .custom-city-marker:hover {
-  transform: scale(1.15);
+  transform: scale(1.18);
   z-index: 99999 !important;
 }
 
 /* علامة الأمصار والعواصم الكبرى (Tier 1 - Supreme Metropolis) */
 .marker-t1-seal {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #d97706 0%, #92400e 65%, #451a03 100%);
-  border: 1.5px solid #ffffff;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.38), 0 0 0 1px #d97706;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px #d97706;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -542,28 +551,29 @@ html, body {
   cursor: pointer !important;
   pointer-events: auto !important;
   transition: box-shadow 0.16s ease;
+  z-index: 3;
 }
 
 .marker-t1-icon {
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   fill: #fffbeb;
   filter: drop-shadow(0 0.5px 1px rgba(0,0,0,0.5));
 }
 
 .marker-t1-label {
   position: absolute;
-  top: 20px;
+  top: 26px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(217, 119, 6, 0.6);
-  padding: 1px 6px;
+  padding: 1px 7px;
   border-radius: 4px;
   white-space: nowrap;
   color: #0f172a;
   font-family: var(--font-title);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
   cursor: pointer !important;
@@ -586,72 +596,75 @@ html, body {
 
 /* علامة الحواضر والمدن المشهورة (Tier 2 - Major Historic City) */
 .marker-t2-gem {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #b45309 0%, #78350f 100%);
-  border: 1.5px solid #ffffff;
-  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.3);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: pointer !important;
   pointer-events: auto !important;
+  z-index: 3;
 }
 
 .marker-t2-core {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #fde68a;
-  box-shadow: 0 0 2px rgba(253, 230, 138, 0.9);
+  box-shadow: 0 0 3px rgba(253, 230, 138, 0.9);
 }
 
-/* علامة القصبات والمحطات (Tier 3 - Historic Town) */
+/* علامة القصبات والمحطات (Tier 3 - Historic Town) - كُبّرت بنسبة 200% لتسهيل النقر */
 .marker-t3-dot {
-  width: 8px;
-  height: 8px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #c2410c;
-  border: 1px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: pointer !important;
   pointer-events: auto !important;
+  z-index: 3;
 }
 
-/* علامة القرى والمواضع الدقيقة (Tier 4 - Village / Outpost) */
+/* علامة القرى والمواضع الدقيقة (Tier 4 - Village / Outpost) - كُبّرت بنسبة 200%+ */
 .marker-t4-pin {
-  width: 6px;
-  height: 6px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: #9a3412;
-  border: 1px solid #ffffff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.28);
   position: relative;
   cursor: pointer !important;
   pointer-events: auto !important;
+  z-index: 3;
 }
 
-/* لافتة اسم الحاضرة في سائر المستويات - قابلة للنقر تماماً */
+/* لافتة اسم الحاضرة في سائر المستويات - تظهر بوضوح عند الزوم 7+ وقابلة للنقر */
 .marker-label-box {
   position: absolute;
-  top: 14px;
+  top: 18px;
   left: 50%;
   transform: translateX(-50%) translateY(-2px);
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(217, 119, 6, 0.5);
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 4px;
   white-space: nowrap;
   color: #0f172a;
-  font-size: 0.64rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
   cursor: pointer !important;
   pointer-events: auto !important;
   opacity: 0;
@@ -664,9 +677,9 @@ html, body {
   gap: 4px;
 }
 
+/* إظهار لافتة الاسم لجميع التيرات عند التكبير الزوم 7+ وعند التحويم */
 .custom-city-marker:hover .marker-label-box,
-.show-marker-labels .custom-city-marker.tier-2 .marker-label-box,
-.show-marker-labels .custom-city-marker.tier-3 .marker-label-box {
+.show-marker-labels .marker-label-box {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
@@ -679,12 +692,12 @@ html, body {
   justify-content: center;
   background: #15803d;
   color: #ffffff;
-  font-size: 0.54rem;
+  font-size: 0.56rem;
   font-weight: 800;
-  padding: 0 3.5px;
-  min-width: 13px;
-  height: 13px;
-  border-radius: 6.5px;
+  padding: 0 4px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
   line-height: 1;
   box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
