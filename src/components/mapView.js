@@ -111,11 +111,13 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
     updateMarkerLabels();
 
     map.on('zoomend', () => {
+      renderMarkers();
       updateMarkerLabels();
       renderPalestineLabels();
     });
 
     map.on('moveend', () => {
+      renderMarkers();
       renderPalestineLabels();
     });
 
@@ -291,114 +293,319 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
     container.classList.toggle('show-marker-labels', map.getZoom() >= 7);
   }
 
+  // قائمة الأمصار الكبرى والعواصم التاريخية العظمى في العالم الإسلامي
+  const supremeCapitals = new Set([
+    'mecca', 'medina', 'jerusalem', 'damascus', 'baghdad', 'kufa', 'basra', 
+    'cairo_fustat', 'alexandria', 'kairouan', 'fes', 'marrakech', 'cordoba', 
+    'seville', 'toledo', 'granada', 'balkh', 'nishapur', 'merv', 'samarkand', 
+    'bukhara', 'herat', 'rayy', 'isfahan', 'shiraz', 'sanaa', 'aleppo', 
+    'mosul', 'tripoli_west', 'tunis', 'timbuktu', 'zanzibar', 'tirmidh', 
+    'qazvin', 'tus', 'khwarazm', 'harran', 'homs', 'hama', 'ashkelon', 'tabaristan',
+    'aden', 'tabriz', 'gorgan', 'sistan', 'wasit', 'tarsus', 'antalya', 'hebron', 'nablus', 'gaza',
+    'hamadan', 'djenne', 'gao', 'awdaghost', 'mogadishu', 'zeila', 'kilwa', 'susa', 'tangier', 'zaragoza',
+    'amman', 'beirut', 'sidon', 'tyre', 'baalbek', 'al_bika', 'arish', 'suakin', 'dongola', 'soba'
+  ]);
+
+  let currentFilteredCentury = null;
+  let currentFilteredRegion = null;
+  let activeSelectedPlace = null;
+
+  function getPlaceTierMeta(place, scholarCount) {
+    const imp = place.importance || '';
+    const isSupreme = supremeCapitals.has(place.id) ||
+      scholarCount >= 4 ||
+      imp.includes('عاصمة الخلافة') ||
+      imp.includes('أم القرى') ||
+      imp.includes('دار السلام') ||
+      imp.includes('قبة الإسلام') ||
+      imp.includes('عين خراسان');
+
+    if (isSupreme) {
+      return { tier: 1, minZoom: 3.0, priority: 100 + scholarCount * 5 };
+    }
+
+    if (scholarCount >= 2 || imp.includes('قاعدة') || imp.includes('حاضرة كبرى') || imp.includes('مصر من أمصار')) {
+      return { tier: 2, minZoom: 5.0, priority: 75 + scholarCount * 3 };
+    }
+
+    if (scholarCount >= 1 || imp.includes('قصبة') || imp.includes('ثغر') || imp.includes('فرضة') || imp.includes('حاضرة')) {
+      return { tier: 3, minZoom: 6.0, priority: 50 + scholarCount * 2 };
+    }
+
+    if (imp.includes('مدينة') || imp.includes('حصن') || imp.includes('قلعة') || imp.includes('محطة')) {
+      return { tier: 4, minZoom: 7.0, priority: 30 };
+    }
+
+    return { tier: 4, minZoom: 8.0, priority: 10 };
+  }
+
+  function createPlaceMarker(place, scholarCount, meta, isSelected) {
+    let iconHtml = '';
+    let iconSize = [24, 24];
+    let iconAnchor = [12, 12];
+
+    const scholarBadge = scholarCount > 0 ? `
+      <span class="marker-scholar-badge ${meta.tier === 2 ? 'mini' : meta.tier >= 3 ? 'micro' : ''}" title="${scholarCount} من كبار الأعلام">
+        ${scholarCount}
+      </span>
+    ` : '';
+
+    if (meta.tier === 1) {
+      iconHtml = `
+        <div class="marker-t1-seal">
+          <svg class="marker-t1-icon" viewBox="0 0 24 24">
+            <path d="M12 2C10.5 4 8 6.5 8 10v2c-1.1 0-2 .9-2 2v6c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-6c0-1.1-.9-2-2-2v-2c0-3.5-2.5-6-4-8z"/>
+          </svg>
+          ${scholarBadge}
+        </div>
+        <div class="marker-t1-label">
+          <span>${place.name}</span>
+        </div>
+      `;
+      iconSize = [34, 34];
+      iconAnchor = [17, 17];
+    } else if (meta.tier === 2) {
+      iconHtml = `
+        <div class="marker-t2-gem">
+          <span class="marker-t2-core"></span>
+          ${scholarBadge}
+        </div>
+        <div class="marker-label-box">
+          <strong>${place.name}</strong>
+          ${place.nisba ? `<span class="scholar-count">(${place.nisba})</span>` : ''}
+        </div>
+      `;
+      iconSize = [24, 24];
+      iconAnchor = [12, 12];
+    } else if (meta.tier === 3) {
+      iconHtml = `
+        <div class="marker-t3-dot">
+          ${scholarBadge}
+        </div>
+        <div class="marker-label-box">
+          <strong>${place.name}</strong>
+        </div>
+      `;
+      iconSize = [16, 16];
+      iconAnchor = [8, 8];
+    } else {
+      iconHtml = `
+        <div class="marker-t4-pin"></div>
+        <div class="marker-label-box">
+          <strong>${place.name}</strong>
+        </div>
+      `;
+      iconSize = [12, 12];
+      iconAnchor = [6, 6];
+    }
+
+    const customIcon = L.divIcon({
+      className: `custom-city-marker tier-${meta.tier} ${isSelected ? 'is-selected' : ''}`,
+      html: iconHtml,
+      iconSize: iconSize,
+      iconAnchor: iconAnchor
+    });
+
+    const marker = L.marker([place.lat, place.lng], {
+      icon: customIcon,
+      zIndexOffset: isSelected ? 1000 : (meta.tier === 1 ? 500 : meta.priority)
+    });
+
+    const placeScholars = scholars.filter((s) => s.placeId === place.id);
+    const scholarsPreview = placeScholars.slice(0, 4).map((s) => `
+      <span class="popup-scholar-tag">${s.name}</span>
+    `).join('');
+
+    const popupHtml = `
+      <div class="popup-card">
+        <div class="popup-header">
+          <div class="popup-title" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span>${place.vocalized || place.name}</span>
+            <button class="mini-speak-btn" title="استمع للنطق التراثي" data-speak="${place.vocalized || place.name}، النسبة إليها: ${place.nisbaVocalized || place.nisba}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            </button>
+          </div>
+          <div class="popup-nisba">النسبة إليها: <strong>${place.nisbaVocalized || place.nisba}</strong></div>
+          <div class="popup-modern-geo">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>الموقع المعاصر: <strong style="color: #b45309;">${place.modernName}</strong> (${place.modernCountry})</span>
+          </div>
+        </div>
+        <div class="popup-scholars-preview">
+          <div class="popup-scholars-title">أبرز علماء الحاضرة (${scholarCount}):</div>
+          <div>${scholarsPreview || '<span style="color: #64748b; font-size: 0.8rem;">مذكورة ومحققة في نصوص ياقوت والسماني والبكري</span>'}</div>
+        </div>
+        <button class="popup-action-btn" id="btn-open-place-${place.id}">
+          عرض التفاصيل ونصوص السمعاني وياقوت
+        </button>
+      </div>
+    `;
+
+    marker.bindPopup(popupHtml, {
+      maxWidth: 320,
+      minWidth: 260,
+      closeButton: true,
+      autoPan: true,
+      autoPanPaddingTopLeft: L.point(40, getPopupTopPadding()),
+      autoPanPaddingBottomRight: L.point(40, 100),
+      offset: L.point(0, -10)
+    });
+
+    marker.on('popupopen', (e) => {
+      const popupEl = e.popup.getElement();
+      if (popupEl) {
+        setupPronunciationButtons(popupEl);
+      }
+      const btn = document.getElementById(`btn-open-place-${place.id}`);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          onSelectPlace(place);
+          marker.closePopup();
+        });
+      }
+    });
+
+    marker.on('preclick', () => {
+      marker.getPopup().options.autoPanPaddingTopLeft = L.point(40, getPopupTopPadding());
+    });
+
+    return marker;
+  }
+
   function renderMarkers(filteredCentury = null) {
+    if (!map || !markersLayer) return;
+
+    if (filteredCentury !== null) {
+      currentFilteredCentury = filteredCentury;
+    }
+
     markersLayer.clearLayers();
 
-    places.forEach((place) => {
-      // حجب العلامات الدائرية لحواضر فلسطين أثناء تفعيل طبقة فلسطين العربية منعاً للازدحام والتداخل البصري
+    const zoom = map.getZoom();
+    const bounds = map.getBounds().pad(0.12);
+
+    // تصفية الأماكن المرشحة جغرافياً وتاريخياً
+    const candidatePlaces = places.filter((place) => {
+      // حجب الحواضر داخل فلسطين أثناء تفعيل طبقة فلسطين العربية منعاً للازدواجية
       if (isPalestineLayerActive && place.modernCountry === 'فلسطين') {
+        return false;
+      }
+
+      // تصفية الإقليم التاريخي المحدد إن وجد
+      if (currentFilteredRegion && place.regionId !== currentFilteredRegion.id) {
+        return false;
+      }
+
+      // تصفية القرن الهجري إن وجد
+      if (currentFilteredCentury !== null) {
+        const centuryScholars = scholars.filter(
+          (s) => s.placeId === place.id && s.centuryAH === currentFilteredCentury
+        );
+        if (centuryScholars.length === 0) return false;
+      }
+
+      // التحقق من وجود الحاضرة ضمن حدود الرؤية الحالية للخريطة
+      return bounds.contains([place.lat, place.lng]);
+    });
+
+    // احتساب أوزان الحواضر ودرجات ظهورها
+    const eligiblePlaces = [];
+    candidatePlaces.forEach((place) => {
+      const placeScholars = scholars.filter((s) => s.placeId === place.id);
+      const scholarCount = placeScholars.length;
+      const meta = getPlaceTierMeta(place, scholarCount);
+      const isSelected = activeSelectedPlace && activeSelectedPlace.id === place.id;
+
+      // السماح بالظهور إذا كان الزوم ملائماً أو كانت الحاضرة هي المحددة حالياً
+      if (isSelected || zoom >= meta.minZoom) {
+        eligiblePlaces.push({
+          place,
+          scholarCount,
+          meta,
+          isSelected
+        });
+      }
+    });
+
+    // ترتيب الحواضر حسب الأهمية التراثية والعلماء أولاً
+    eligiblePlaces.sort((a, b) => {
+      if (a.isSelected) return -1;
+      if (b.isSelected) return 1;
+      return b.meta.priority - a.meta.priority;
+    });
+
+    // منع التداخل البصري عبر فحص التصادم على مستوى الشاشة (Collision Avoidance)
+    const placedBoxes = [];
+
+    eligiblePlaces.forEach((item) => {
+      const pt = map.latLngToContainerPoint([item.place.lat, item.place.lng]);
+      const isTier1 = item.meta.tier === 1;
+
+      let boxSize = 22;
+      if (item.meta.tier === 1) boxSize = 38;
+      else if (item.meta.tier === 2) boxSize = 26;
+      else if (item.meta.tier === 3) boxSize = 16;
+      else boxSize = 12;
+
+      const margin = zoom <= 5 ? 16 : 8;
+
+      const candidateBox = {
+        left: pt.x - boxSize / 2 - margin,
+        right: pt.x + boxSize / 2 + margin,
+        top: pt.y - boxSize / 2 - margin,
+        bottom: pt.y + boxSize / 2 + margin
+      };
+
+      const hasCollision = placedBoxes.some((b) => {
+        return !(
+          candidateBox.right < b.left ||
+          candidateBox.left > b.right ||
+          candidateBox.bottom < b.top ||
+          candidateBox.top > b.bottom
+        );
+      });
+
+      // إذا كانت هناك حاضرة محددة، تظهر دائماً دون حجب
+      if (item.isSelected) {
+        placedBoxes.push(candidateBox);
+        const marker = createPlaceMarker(item.place, item.scholarCount, item.meta, true);
+        markersLayer.addLayer(marker);
         return;
       }
 
-      const placeScholars = scholars.filter((s) => s.placeId === place.id);
-      
-      if (filteredCentury !== null) {
-        const centuryScholars = placeScholars.filter((s) => s.centuryAH === filteredCentury);
-        if (centuryScholars.length === 0) return;
+      // منع التداخل: استبعاد الحاضرة الثانوية إن كانت تصطدم مع حاضرة أكبر
+      if (hasCollision && !isTier1) {
+        return;
       }
 
-      const scholarCount = placeScholars.length;
+      if (hasCollision && isTier1) {
+        const strictCollision = placedBoxes.some((b) => {
+          return !(
+            candidateBox.right - margin + 4 < b.left ||
+            candidateBox.left + margin - 4 > b.right ||
+            candidateBox.bottom - margin + 4 < b.top ||
+            candidateBox.top + margin - 4 > b.bottom
+          );
+        });
+        if (strictCollision) return;
+      }
 
-      // أيقونة العلامة النهارية الفاخرة
-      const customIcon = L.divIcon({
-        className: 'custom-city-marker',
-        html: `
-          <div class="marker-pulse"></div>
-          <div class="marker-beacon">
-            <span>${scholarCount}</span>
-          </div>
-          <div class="marker-label-box">
-            <strong>${place.name}</strong>
-            <span class="scholar-count">(${place.nisba})</span>
-          </div>
-        `,
-        iconSize: [38, 38],
-        iconAnchor: [19, 19]
-      });
-
-      const marker = L.marker([place.lat, place.lng], { icon: customIcon });
-
-      const scholarsPreview = placeScholars.slice(0, 4).map((s) => `
-        <span class="popup-scholar-tag">${s.name}</span>
-      `).join('');
-
-      const popupHtml = `
-        <div class="popup-card">
-          <div class="popup-header">
-            <div class="popup-title" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-              <span>${place.vocalized || place.name}</span>
-              <button class="mini-speak-btn" title="استمع للنطق التراثي" data-speak="${place.vocalized || place.name}، النسبة إليها: ${place.nisbaVocalized || place.nisba}">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-              </button>
-            </div>
-            <div class="popup-nisba">النسبة إليها: <strong>${place.nisbaVocalized || place.nisba}</strong></div>
-            <div class="popup-modern-geo">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              <span>الموقع المعاصر: <strong style="color: #b45309;">${place.modernName}</strong> (${place.modernCountry})</span>
-            </div>
-          </div>
-          <div class="popup-scholars-preview">
-            <div class="popup-scholars-title">أبرز علماء الحاضرة (${scholarCount}):</div>
-            <div>${scholarsPreview}</div>
-          </div>
-          <button class="popup-action-btn" id="btn-open-place-${place.id}">
-            عرض التفاصيل ونصوص السمعاني وياقوت
-          </button>
-        </div>
-      `;
-
-      // هامش أمان علوي كبير 220 بكسل حتى لا تتداخل النافذة إطلاقاً مع شريط الهيدر
-      marker.bindPopup(popupHtml, {
-        maxWidth: 320,
-        minWidth: 260,
-        closeButton: true,
-        autoPan: true,
-        autoPanPaddingTopLeft: L.point(40, getPopupTopPadding()),
-        autoPanPaddingBottomRight: L.point(40, 100),
-        offset: L.point(0, -10)
-      });
-
-      marker.on('popupopen', (e) => {
-        const popupEl = e.popup.getElement();
-        if (popupEl) {
-          setupPronunciationButtons(popupEl);
-        }
-        const btn = document.getElementById(`btn-open-place-${place.id}`);
-        if (btn) {
-          btn.addEventListener('click', () => {
-            onSelectPlace(place);
-            marker.closePopup();
-          });
-        }
-      });
-
-      // تحديث هامش البوب أب قبل فتحه حتى يبقى أسفل الهيدر في كل مقاس شاشة
-      marker.on('preclick', () => {
-        marker.getPopup().options.autoPanPaddingTopLeft = L.point(40, getPopupTopPadding());
-      });
-
+      placedBoxes.push(candidateBox);
+      const marker = createPlaceMarker(item.place, item.scholarCount, item.meta, false);
       markersLayer.addLayer(marker);
     });
   }
 
   function flyToPlace(place, zoomLevel = 8) {
     if (!map) return;
+    activeSelectedPlace = place;
     // إضافة إزاحة مدروسة لجعل المدينة أسفل الهيدر مباشرة
     const latOffset = zoomLevel > 7 ? 0.6 : 1.5;
     map.flyTo([place.lat + latOffset, place.lng], zoomLevel, {
       duration: 1.6,
       easeLinearity: 0.25
     });
+    renderMarkers();
   }
 
   function drawRihlaRoute(scholar) {
@@ -508,98 +715,28 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
   // تصفية الحواضر بحسب الإقليم التاريخي المحدد
   function filterByRegion(region) {
     if (!region) {
+      currentFilteredRegion = null;
       renderMarkers();
       return;
     }
 
-    markersLayer.clearLayers();
+    currentFilteredRegion = region;
     const regionPlaces = places.filter((p) => p.regionId === region.id);
-
-    regionPlaces.forEach((place) => {
-      const placeScholars = scholars.filter((s) => s.placeId === place.id);
-      const scholarCount = placeScholars.length;
-
-      const customIcon = L.divIcon({
-        className: 'custom-city-marker',
-        html: `
-          <div class="marker-pulse"></div>
-          <div class="marker-beacon">
-            <span>${scholarCount}</span>
-          </div>
-          <div class="marker-label-box">
-            <strong>${place.name}</strong>
-            <span class="scholar-count">(${place.nisba})</span>
-          </div>
-        `,
-        iconSize: [38, 38],
-        iconAnchor: [19, 19]
-      });
-
-      const marker = L.marker([place.lat, place.lng], { icon: customIcon });
-
-      const scholarsPreview = placeScholars.slice(0, 4).map((s) => `
-        <span class="popup-scholar-tag">${s.name}</span>
-      `).join('');
-
-      const popupHtml = `
-        <div class="popup-card">
-          <div class="popup-header">
-            <div class="popup-title">
-              <span>${place.vocalized || place.name}</span>
-            </div>
-            <div class="popup-nisba">النسبة إليها: <strong>${place.nisbaVocalized || place.nisba}</strong></div>
-            <div class="popup-modern-geo">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              <span>الموقع المعاصر: <strong>${place.modernName}</strong> (${place.modernCountry})</span>
-            </div>
-          </div>
-          <div class="popup-scholars-preview">
-            <div class="popup-scholars-title">أبرز علماء الحاضرة (${scholarCount}):</div>
-            <div>${scholarsPreview}</div>
-          </div>
-          <button class="popup-action-btn" id="btn-open-place-${place.id}">
-            عرض التفاصيل ونصوص السمعاني وياقوت
-          </button>
-        </div>
-      `;
-
-      marker.bindPopup(popupHtml, {
-        maxWidth: 320,
-        minWidth: 260,
-        closeButton: true,
-        autoPan: true,
-        autoPanPaddingTopLeft: L.point(40, getPopupTopPadding()),
-        autoPanPaddingBottomRight: L.point(40, 100),
-        offset: L.point(0, -10)
-      });
-
-      marker.on('popupopen', () => {
-        const btn = document.getElementById(`btn-open-place-${place.id}`);
-        if (btn) {
-          btn.addEventListener('click', () => {
-            onSelectPlace(place);
-            marker.closePopup();
-          });
-        }
-      });
-
-      marker.on('preclick', () => {
-        marker.getPopup().options.autoPanPaddingTopLeft = L.point(40, getPopupTopPadding());
-      });
-
-      markersLayer.addLayer(marker);
-    });
 
     if (regionPlaces.length > 0) {
       const bounds = L.latLngBounds(regionPlaces.map(p => [p.lat, p.lng]));
-      map.fitBounds(bounds, { padding: [160, 160] });
+      map.fitBounds(bounds, { padding: [120, 120] });
     }
+    renderMarkers();
   }
 
   function resetView() {
     if (!map) return;
     clearRihlaRoute();
-    map.flyTo([32.0, 48.0], 5, { duration: 1.4 });
+    currentFilteredCentury = null;
+    currentFilteredRegion = null;
+    activeSelectedPlace = null;
+    map.flyTo([30.0, 42.0], 5, { duration: 1.4 });
     renderMarkers();
   }
 
