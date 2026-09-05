@@ -345,53 +345,51 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
     let iconAnchor = [12, 12];
 
     const scholarBadge = scholarCount > 0 ? `
-      <span class="marker-scholar-badge ${meta.tier === 2 ? 'mini' : meta.tier >= 3 ? 'micro' : ''}" title="${scholarCount} من كبار الأعلام">
+      <span class="marker-label-scholar-tag" title="${scholarCount} من كبار الأعلام">
         ${scholarCount}
       </span>
     ` : '';
 
     if (meta.tier === 1) {
       iconHtml = `
-        <div class="marker-t1-seal">
+        <div class="marker-t1-seal" title="${place.name}">
           <svg class="marker-t1-icon" viewBox="0 0 24 24">
             <path d="M12 2C10.5 4 8 6.5 8 10v2c-1.1 0-2 .9-2 2v6c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-6c0-1.1-.9-2-2-2v-2c0-3.5-2.5-6-4-8z"/>
           </svg>
-          ${scholarBadge}
         </div>
-        <div class="marker-t1-label">
+        <div class="marker-t1-label" title="انقر لعرض تفاصيل ${place.name}">
           <span>${place.name}</span>
+          ${scholarBadge}
         </div>
       `;
       iconSize = [20, 20];
       iconAnchor = [10, 10];
     } else if (meta.tier === 2) {
       iconHtml = `
-        <div class="marker-t2-gem">
+        <div class="marker-t2-gem" title="${place.name}">
           <span class="marker-t2-core"></span>
-          ${scholarBadge}
         </div>
-        <div class="marker-label-box">
+        <div class="marker-label-box" title="انقر لعرض تفاصيل ${place.name}">
           <strong>${place.name}</strong>
-          ${place.nisba ? `<span class="scholar-count">(${place.nisba})</span>` : ''}
+          ${scholarBadge}
         </div>
       `;
       iconSize = [14, 14];
       iconAnchor = [7, 7];
     } else if (meta.tier === 3) {
       iconHtml = `
-        <div class="marker-t3-dot">
-          ${scholarBadge}
-        </div>
-        <div class="marker-label-box">
+        <div class="marker-t3-dot" title="${place.name}"></div>
+        <div class="marker-label-box" title="انقر لعرض تفاصيل ${place.name}">
           <strong>${place.name}</strong>
+          ${scholarBadge}
         </div>
       `;
       iconSize = [10, 10];
       iconAnchor = [5, 5];
     } else {
       iconHtml = `
-        <div class="marker-t4-pin"></div>
-        <div class="marker-label-box">
+        <div class="marker-t4-pin" title="${place.name}"></div>
+        <div class="marker-label-box" title="انقر لعرض تفاصيل ${place.name}">
           <strong>${place.name}</strong>
         </div>
       `;
@@ -467,6 +465,12 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
 
     marker.on('preclick', () => {
       marker.getPopup().options.autoPanPaddingTopLeft = L.point(40, getPopupTopPadding());
+    });
+
+    marker.on('click', () => {
+      if (!marker.isPopupOpen()) {
+        marker.openPopup();
+      }
     });
 
     return marker;

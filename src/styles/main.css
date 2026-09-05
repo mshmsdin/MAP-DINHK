@@ -512,16 +512,17 @@ html, body {
    ========================================================================== */
 .custom-city-marker {
   position: relative;
-  cursor: pointer;
+  cursor: pointer !important;
   transform-origin: center center;
-  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto !important;
 }
 
 .custom-city-marker:hover {
-  transform: scale(1.22);
+  transform: scale(1.15);
   z-index: 99999 !important;
 }
 
@@ -538,7 +539,9 @@ html, body {
   justify-content: center;
   color: #fef3c7;
   position: relative;
-  transition: box-shadow 0.18s ease;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: box-shadow 0.16s ease;
 }
 
 .marker-t1-icon {
@@ -550,12 +553,12 @@ html, body {
 
 .marker-t1-label {
   position: absolute;
-  top: 21px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(217, 119, 6, 0.6);
-  padding: 0 5px;
+  padding: 1px 6px;
   border-radius: 4px;
   white-space: nowrap;
   color: #0f172a;
@@ -563,9 +566,22 @@ html, body {
   font-size: 0.68rem;
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
-  pointer-events: none;
+  cursor: pointer !important;
+  pointer-events: auto !important;
   z-index: 10;
   line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.marker-t1-label:hover,
+.marker-label-box:hover {
+  background: #ffffff;
+  border-color: #b45309;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  color: #78350f;
 }
 
 /* علامة الحواضر والمدن المشهورة (Tier 2 - Major Historic City) */
@@ -580,6 +596,8 @@ html, body {
   align-items: center;
   justify-content: center;
   position: relative;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 .marker-t2-core {
@@ -602,6 +620,8 @@ html, body {
   align-items: center;
   justify-content: center;
   position: relative;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 /* علامة القرى والمواضع الدقيقة (Tier 4 - Village / Outpost) */
@@ -613,68 +633,35 @@ html, body {
   border: 1px solid #ffffff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   position: relative;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
-/* شارة عدد العلماء الكبار (تظهر فقط عند وجود علماء > 0) */
-.marker-scholar-badge {
-  position: absolute;
-  top: -4px;
-  right: -5px;
-  min-width: 12px;
-  height: 12px;
-  padding: 0 2px;
-  border-radius: 6px;
-  background: #15803d;
-  border: 1px solid #ffffff;
-  color: #ffffff;
-  font-size: 0.52rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  line-height: 1;
-}
-
-.marker-scholar-badge.mini {
-  top: -3px;
-  right: -4px;
-  min-width: 10px;
-  height: 10px;
-  font-size: 0.48rem;
-  padding: 0 1px;
-}
-
-.marker-scholar-badge.micro {
-  top: -3px;
-  right: -3px;
-  min-width: 8px;
-  height: 8px;
-  font-size: 0.42rem;
-  padding: 0;
-}
-
-/* صندوق اسم المدينة في التيرات الأخرى عند التحويم أو التكبير */
+/* لافتة اسم الحاضرة في سائر المستويات - قابلة للنقر تماماً */
 .marker-label-box {
   position: absolute;
-  top: 15px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%) translateY(-2px);
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(217, 119, 6, 0.5);
-  padding: 0 4px;
+  padding: 1px 5px;
   border-radius: 4px;
   white-space: nowrap;
   color: #0f172a;
-  font-size: 0.63rem;
+  font-size: 0.64rem;
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-  pointer-events: none;
+  cursor: pointer !important;
+  pointer-events: auto !important;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease, background 0.15s ease;
   z-index: 10;
   line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .custom-city-marker:hover .marker-label-box,
@@ -683,6 +670,23 @@ html, body {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+}
+
+/* شارة عدد العلماء الملحقة باسم الحاضرة */
+.marker-label-scholar-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #15803d;
+  color: #ffffff;
+  font-size: 0.54rem;
+  font-weight: 800;
+  padding: 0 3.5px;
+  min-width: 13px;
+  height: 13px;
+  border-radius: 6.5px;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .marker-label-box .scholar-count {
