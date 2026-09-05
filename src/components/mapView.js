@@ -362,8 +362,8 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
           <span>${place.name}</span>
         </div>
       `;
-      iconSize = [34, 34];
-      iconAnchor = [17, 17];
+      iconSize = [20, 20];
+      iconAnchor = [10, 10];
     } else if (meta.tier === 2) {
       iconHtml = `
         <div class="marker-t2-gem">
@@ -375,8 +375,8 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
           ${place.nisba ? `<span class="scholar-count">(${place.nisba})</span>` : ''}
         </div>
       `;
-      iconSize = [24, 24];
-      iconAnchor = [12, 12];
+      iconSize = [14, 14];
+      iconAnchor = [7, 7];
     } else if (meta.tier === 3) {
       iconHtml = `
         <div class="marker-t3-dot">
@@ -386,8 +386,8 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
           <strong>${place.name}</strong>
         </div>
       `;
-      iconSize = [16, 16];
-      iconAnchor = [8, 8];
+      iconSize = [10, 10];
+      iconAnchor = [5, 5];
     } else {
       iconHtml = `
         <div class="marker-t4-pin"></div>
@@ -395,8 +395,8 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
           <strong>${place.name}</strong>
         </div>
       `;
-      iconSize = [12, 12];
-      iconAnchor = [6, 6];
+      iconSize = [8, 8];
+      iconAnchor = [4, 4];
     }
 
     const customIcon = L.divIcon({
@@ -541,13 +541,13 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
       const pt = map.latLngToContainerPoint([item.place.lat, item.place.lng]);
       const isTier1 = item.meta.tier === 1;
 
-      let boxSize = 22;
-      if (item.meta.tier === 1) boxSize = 38;
-      else if (item.meta.tier === 2) boxSize = 26;
-      else if (item.meta.tier === 3) boxSize = 16;
-      else boxSize = 12;
+      let boxSize = 10;
+      if (item.meta.tier === 1) boxSize = 22;
+      else if (item.meta.tier === 2) boxSize = 14;
+      else if (item.meta.tier === 3) boxSize = 10;
+      else boxSize = 7;
 
-      const margin = zoom <= 5 ? 16 : 8;
+      const margin = zoom <= 5 ? 10 : 5;
 
       const candidateBox = {
         left: pt.x - boxSize / 2 - margin,

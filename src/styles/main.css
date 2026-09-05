@@ -514,67 +514,68 @@ html, body {
   position: relative;
   cursor: pointer;
   transform-origin: center center;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .custom-city-marker:hover {
-  transform: scale(1.18);
+  transform: scale(1.22);
   z-index: 99999 !important;
 }
 
 /* علامة الأمصار والعواصم الكبرى (Tier 1 - Supreme Metropolis) */
 .marker-t1-seal {
-  width: 32px;
-  height: 32px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #d97706 0%, #92400e 65%, #451a03 100%);
-  border: 2px solid #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.42), 0 0 0 1.5px #d97706;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.38), 0 0 0 1px #d97706;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fef3c7;
   position: relative;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.18s ease;
 }
 
 .marker-t1-icon {
-  width: 17px;
-  height: 17px;
+  width: 10px;
+  height: 10px;
   fill: #fffbeb;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 0.5px 1px rgba(0,0,0,0.5));
 }
 
 .marker-t1-label {
   position: absolute;
-  top: 35px;
+  top: 21px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.96);
-  border: 1.5px solid #d97706;
-  padding: 1px 7px;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(217, 119, 6, 0.6);
+  padding: 0 5px;
+  border-radius: 4px;
   white-space: nowrap;
-  color: #1e293b;
+  color: #0f172a;
   font-family: var(--font-title);
-  font-size: 0.8rem;
-  font-weight: 800;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
   pointer-events: none;
   z-index: 10;
+  line-height: 1.4;
 }
 
 /* علامة الحواضر والمدن المشهورة (Tier 2 - Major Historic City) */
 .marker-t2-gem {
-  width: 22px;
-  height: 22px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #b45309 0%, #78350f 100%);
-  border: 2px solid #ffffff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -582,21 +583,21 @@ html, body {
 }
 
 .marker-t2-core {
-  width: 7px;
-  height: 7px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #fde68a;
-  box-shadow: 0 0 4px rgba(253, 230, 138, 0.8);
+  box-shadow: 0 0 2px rgba(253, 230, 138, 0.9);
 }
 
 /* علامة القصبات والمحطات (Tier 3 - Historic Town) */
 .marker-t3-dot {
-  width: 14px;
-  height: 14px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #c2410c;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -605,73 +606,75 @@ html, body {
 
 /* علامة القرى والمواضع الدقيقة (Tier 4 - Village / Outpost) */
 .marker-t4-pin {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #9a3412;
-  border: 1.5px solid #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  border: 1px solid #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
 /* شارة عدد العلماء الكبار (تظهر فقط عند وجود علماء > 0) */
 .marker-scholar-badge {
   position: absolute;
-  top: -6px;
-  right: -8px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 9px;
-  background: #15803d;
-  border: 1.5px solid #ffffff;
-  color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.marker-scholar-badge.mini {
-  top: -5px;
-  right: -6px;
-  min-width: 15px;
-  height: 15px;
-  font-size: 0.6rem;
-  padding: 0 2px;
-}
-
-.marker-scholar-badge.micro {
   top: -4px;
   right: -5px;
   min-width: 12px;
   height: 12px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: #15803d;
+  border: 1px solid #ffffff;
+  color: #ffffff;
   font-size: 0.52rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.marker-scholar-badge.mini {
+  top: -3px;
+  right: -4px;
+  min-width: 10px;
+  height: 10px;
+  font-size: 0.48rem;
   padding: 0 1px;
+}
+
+.marker-scholar-badge.micro {
+  top: -3px;
+  right: -3px;
+  min-width: 8px;
+  height: 8px;
+  font-size: 0.42rem;
+  padding: 0;
 }
 
 /* صندوق اسم المدينة في التيرات الأخرى عند التحويم أو التكبير */
 .marker-label-box {
   position: absolute;
-  top: 28px;
+  top: 15px;
   left: 50%;
-  transform: translateX(-50%) translateY(-3px);
-  background: rgba(255, 255, 255, 0.98);
-  border: 1.5px solid var(--gold-primary);
-  padding: 2px 8px;
-  border-radius: 6px;
+  transform: translateX(-50%) translateY(-2px);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(217, 119, 6, 0.5);
+  padding: 0 4px;
+  border-radius: 4px;
   white-space: nowrap;
   color: #0f172a;
-  font-size: 0.74rem;
+  font-size: 0.63rem;
   font-weight: 700;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
   z-index: 10;
+  line-height: 1.4;
 }
 
 .custom-city-marker:hover .marker-label-box,
