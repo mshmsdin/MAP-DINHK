@@ -15,8 +15,15 @@ import { createGuideModal } from './components/guideModal.js';
 import { places } from './data/places.js';
 import { initAudioSpeech } from './utils/audioSpeech.js';
 import { initCorpusModal } from './components/corpusModal.js';
-import { initCorpusExplorer } from './components/corpusExplorer.js';
+import { initCorpusExplorer, openCorpusExplorer } from './components/corpusExplorer.js';
 import { loadMasterCorpusIndex } from './utils/corpusSearch.js';
+import { 
+  updatePlaceSEO, 
+  resetDefaultSEO, 
+  setPlaceURL, 
+  clearPlaceURL, 
+  getInitialPlaceId 
+} from './utils/seoRouting.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const appRoot = document.getElementById('app');
@@ -67,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const drawer = createDrawer({
     onClose: () => {
       mapView.clearRihlaRoute();
+      clearPlaceURL();
     },
     onDrawRihla: (scholar) => {
       mapView.drawRihlaRoute(scholar);
@@ -75,8 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modals.showScholarCard(scholar, place);
     },
     onFlyToPlace: (place) => {
-      currentSelectedPlace = place;
-      mapView.flyToPlace(place, 8);
+      handleSelectPlace(place);
     }
   });
 
@@ -87,11 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 7. دالة التمركز المشتركة حول أي حاضرة أو موضع تاريخي
-  const handleSelectPlace = (place) => {
+  // 7. دالة التمركز المشتركة حول أي حاضرة أو موضع تاريخي مع تحديث الـ SEO والرابط البرمجي
+  const handleSelectPlace = (place, updateUrl = true) => {
     currentSelectedPlace = place;
     mapView.flyToPlace(place, 8);
     drawer.openPlace(place);
+    if (updateUrl) {
+      setPlaceURL(place.id, true);
+    }
+    updatePlaceSEO(place);
   };
 
   // تهيئة قارئ ومستكشف الموسوعة التراثية الشاملة لكتابي معجم البلدان والأنساب (100%)
@@ -115,17 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 8. إنشاء الهيدر وشريط البحث مع الميزات الجديدة
   const header = createHeader({
     onSelectPlace: (place) => {
-      currentSelectedPlace = place;
-      mapView.flyToPlace(place, 8);
-      drawer.openPlace(place);
+      handleSelectPlace(place);
     },
     onSelectScholar: (scholar) => {
       if (scholar.placeId) {
         const place = places.find((p) => p.id === scholar.placeId);
         if (place) {
-          currentSelectedPlace = place;
-          mapView.flyToPlace(place, 8);
-          drawer.openPlace(place);
+          handleSelectPlace(place);
         }
       }
     },
@@ -151,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mapView.resetView();
       drawer.close();
       timeline.reset();
+      clearPlaceURL();
     }
   });
 
@@ -163,12 +171,57 @@ document.addEventListener('DOMContentLoaded', () => {
   // تهيئة خريطة Leaflet بعد التركيب
   mapView.init();
 
-  // فحص مسار الرابط /map/f1 أو /f1 لفتح صفحة الدليل والتعليمات الشاملة فورياً
-  if (window.location.pathname.endsWith('/f1') || window.location.hash === '#f1' || window.location.search.includes('f1')) {
-    setTimeout(() => {
-      guideModal.show();
-    }, 200);
+  // فحص والتعامل مع أزرار الرجوع والتقدم في المتصفح (History API & Deep Linking)
+  window.addEventListener('popstate', () => {
+    const pId = getInitialPlaceId();
+    if (pId) {
+      const p = places.find((x) => x.id.toLowerCase() === pId.toLowerCase());
+      if (p) {
+        handleSelectPlace(p, false);
+      }
+    } else {
+      drawer.close();
+      clearPlaceURL();
+      mapView.resetView();
+    }
+  });
+
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash || '';
+    if (hash === '#corpus') openCorpusExplorer();
+    else if (hash === '#regions') regionsExplorer.show();
+    else if (hash === '#calculator') distanceCalc.show();
+    else if (hash === '#quiz') quizModal.show();
+    else if (hash === '#guide' || hash === '#f1') guideModal.show();
+    else if (hash === '#stats') modals.showStats();
+    else {
+      const pId = getInitialPlaceId();
+      if (pId) {
+        const p = places.find((x) => x.id.toLowerCase() === pId.toLowerCase());
+        if (p) handleSelectPlace(p, false);
+      }
+    }
+  });
+
+  // فحص الرابط البرمجي المباشر للموضع عند بداية التحميل (Deep Linking & SEO)
+  const initialPlaceId = getInitialPlaceId();
+  if (initialPlaceId) {
+    const targetPlace = places.find((p) => p.id.toLowerCase() === initialPlaceId.toLowerCase());
+    if (targetPlace) {
+      setTimeout(() => {
+        handleSelectPlace(targetPlace, false);
+      }, 400);
+    }
+  } else {
+    // فحص وسوم الأقسام الأخرى
+    const hash = window.location.hash || '';
+    if (hash === '#corpus') setTimeout(() => openCorpusExplorer(), 300);
+    else if (hash === '#regions') setTimeout(() => regionsExplorer.show(), 300);
+    else if (hash === '#calculator') setTimeout(() => distanceCalc.show(), 300);
+    else if (hash === '#quiz') setTimeout(() => quizModal.show(), 300);
+    else if (hash === '#guide' || hash === '#f1' || window.location.pathname.endsWith('/f1')) setTimeout(() => guideModal.show(), 300);
+    else if (hash === '#stats') setTimeout(() => modals.showStats(), 300);
   }
 
-  console.log("موسوعة أسماء البلدان والكنى القديمة تعمل بنجاح.");
+  console.log("موسوعة أسماء البلدان والكنى القديمة تعمل بنجاح مع التوجيه البرمجي الكامل والـ SEO.");
 });

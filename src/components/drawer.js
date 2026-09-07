@@ -4,6 +4,7 @@
 import { scholars } from '../data/scholars.js';
 import { places } from '../data/places.js';
 import { setupPronunciationButtons } from '../utils/audioSpeech.js';
+import { copyPlaceShareUrl } from '../utils/seoRouting.js';
 
 export function createDrawer({ onClose, onDrawRihla, onGenerateCard, onFlyToPlace }) {
   const drawer = document.createElement('aside');
@@ -101,10 +102,16 @@ export function createDrawer({ onClose, onDrawRihla, onGenerateCard, onFlyToPlac
         
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px;">
           <h2 class="place-title-ar" style="margin: 0;">${place.vocalized || place.name}</h2>
-          <button class="btn-audio-pronounce" title="استمع للنطق التراثي المضبوط" data-speak="${place.vocalized || place.name}، النسبة إليها: ${place.nisbaVocalized || place.nisba}">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-            <span>استمع للنطق التراثي</span>
-          </button>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-copy-link" id="btn-copy-place-link" title="نسخ الرابط البرمجي للموضع للمشاركة والأرشفة">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <span>نسخ رابط الموضع</span>
+            </button>
+            <button class="btn-audio-pronounce" title="استمع للنطق التراثي المضبوط" data-speak="${place.vocalized || place.name}، النسبة إليها: ${place.nisbaVocalized || place.nisba}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+              <span>استمع للنطق التراثي</span>
+            </button>
+          </div>
         </div>
 
         <div class="modern-name-banner">
@@ -206,6 +213,14 @@ export function createDrawer({ onClose, onDrawRihla, onGenerateCard, onFlyToPlac
         if (scholar && onGenerateCard) onGenerateCard(scholar, place);
       });
     });
+
+    const btnCopy = body.querySelector('#btn-copy-place-link');
+    if (btnCopy) {
+      btnCopy.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyPlaceShareUrl(place);
+      });
+    }
 
     setupPronunciationButtons(body);
     drawer.classList.add('open');

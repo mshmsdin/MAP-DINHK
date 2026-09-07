@@ -3,7 +3,9 @@
 # ==============================================================================
 
 User-agent: *
+Allow: /
 Allow: /map/
+Allow: /map/*
 
-# Sitemap index location
+# Comprehensive XML Sitemap including all 625 historical places
 Sitemap: https://din.hk/map/sitemap.xml
