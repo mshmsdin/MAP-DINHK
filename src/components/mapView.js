@@ -604,7 +604,9 @@ export function createMapView({ onSelectPlace, onSelectScholar }) {
     if (!map) return;
     activeSelectedPlace = place;
     // إضافة إزاحة مدروسة لجعل المدينة أسفل الهيدر مباشرة
-    const latOffset = zoomLevel > 7 ? 0.6 : 1.5;
+    // وفي وضع التضمين الدرج يغطي أسفل الإطار، فتُرفع المدينة إلى أعلاه.
+    const embedded = document.documentElement.classList.contains('embed-mode');
+    const latOffset = embedded ? (zoomLevel > 7 ? -0.75 : -2) : zoomLevel > 7 ? 0.6 : 1.5;
     map.flyTo([place.lat + latOffset, place.lng], zoomLevel, {
       duration: 1.6,
       easeLinearity: 0.25

@@ -14,7 +14,14 @@ import { createQuizModal } from './components/quizModal.js';
 import { createGuideModal } from './components/guideModal.js';
 import { places } from './data/places.js';
 import { initAudioSpeech } from './utils/audioSpeech.js';
-import { initCorpusModal } from './components/corpusModal.js';
+import { initCorpusModal, openCorpusEntry } from './components/corpusModal.js';
+
+// وضع التضمين (?embed=1): تعرضه «بوابة السنة» (din.hk/sunna) داخل لوحة في صفحاتها، فتُخفى الترويسة وشريط
+// القرون ويُعرض الموضع أو المادة وحدهما. ورابط المادة المباشر ?entry=<المعرّف> يفتح أي مادة من الكتب الخمسة
+// (s_711 = «الترمذي» في أنساب السمعاني، y_2358 = «ترمذ» في معجم البلدان).
+const urlParams = new URLSearchParams(window.location.search);
+const IS_EMBED = urlParams.has('embed');
+if (IS_EMBED) document.documentElement.classList.add('embed-mode');
 import { initCorpusExplorer, openCorpusExplorer } from './components/corpusExplorer.js';
 import { loadMasterCorpusIndex } from './utils/corpusSearch.js';
 import { 
@@ -163,10 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // تركيب المكونات في شجرة DOM
-  appRoot.appendChild(header.element);
+  if (!IS_EMBED) appRoot.appendChild(header.element);
   appRoot.appendChild(mapView.element);
   appRoot.appendChild(drawer.element);
-  appRoot.appendChild(timeline.element);
+  if (!IS_EMBED) appRoot.appendChild(timeline.element);
 
   // تهيئة خريطة Leaflet بعد التركيب
   mapView.init();
@@ -202,6 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // رابط المادة المباشر (?entry=s_711): تُفتح المادة بنصها الكامل، ومنها زر «عرض على الخريطة».
+  const initialEntryId = urlParams.get('entry');
+  if (initialEntryId && /^[ysblm]_\d+$/.test(initialEntryId)) {
+    loadMasterCorpusIndex().then((index) => {
+      const item = (index || []).find((e) => e.id === initialEntryId);
+      if (item) openCorpusEntry(item.id, item.b, item.l);
+    });
+  }
 
   // فحص الرابط البرمجي المباشر للموضع عند بداية التحميل (Deep Linking & SEO)
   const initialPlaceId = getInitialPlaceId();
